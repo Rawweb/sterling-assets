@@ -1,39 +1,39 @@
-type SendMailArgs = {
-  to: string;
-  subject: string;
-  html: string;
-};
+// lib/mail.ts
+import { Resend } from 'resend';
+import VerificationEmail from '@/emails/VerificationEmail';
 
-async function sendMail({ to, subject, html }: SendMailArgs) {
-  if (process.env.NODE_ENV === 'production') {
-    // TODO: replace with the real Zoho transport.
-    throw new Error('Mail transport not configured');
-  }
-
-  console.log('\n──────── EMAIL (dev) ────────');
-  console.log('To:      ', to);
-  console.log('Subject: ', subject);
-  console.log(
-    html
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim(),
-  );
-  console.log('─────────────────────────────\n');
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error('RESEND_API_KEY is not set');
+  return new Resend(key);
 }
 
-export async function sendVerificationEmail(to: string, token: string) {
+export async function sendVerificationEmail(
+  to: string,
+  token: string,
+  fullName?: string,
+) {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   const link = `${base}/api/auth/verify?token=${token}`;
 
-  await sendMail({
+  // Still print the link locally. Saves opening an inbox on every test run,
+  // and shows you the exact URL if a send fails.
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n🔗 Verification link for ${to}:\n${link}\n`);
+  }
+
+  const { data, error } = await getResend().emails.send({
+    from: process.env.MAIL_FROM!,
     to,
-    subject: 'Verify your email',
-    html: `
-      <p>Welcome to Sterling Assets Holdings.</p>
-      <p>Confirm your email address to activate your account:</p>
-      <p><a href="${link}">${link}</a></p>
-      <p>This link expires in 24 hours.</p>
-    `,
+    subject: 'Confirm your email',
+    react: VerificationEmail({ link, fullName }),
   });
+
+  if (error) {
+    // Log the real reason, then rethrow so the caller decides what to do.
+    console.error('Resend failed:', error);
+    throw new Error('Failed to send verification email');
+  }
+
+  return data;
 }

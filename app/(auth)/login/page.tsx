@@ -29,7 +29,7 @@ export default function LoginPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         router.push('/dashboard');

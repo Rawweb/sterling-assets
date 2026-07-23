@@ -55,10 +55,17 @@ export async function POST(req: NextRequest) {
     });
 
     const token = await createVerificationToken(user.id);
-    await sendVerificationEmail(user.email, token);
     await setPendingEmail(user.email);
 
-    return Response.json({ ok: true, user }, { status: 201 });
+    let emailSent = true;
+    try {
+      await sendVerificationEmail(user.email, token, user.fullName);
+    } catch (mailError) {
+      console.error('Verification email failed to send:', mailError);
+      emailSent = false;
+    }
+
+    return Response.json({ ok: true, user, emailSent }, { status: 201 });
   } catch (error) {
     if (
       typeof error === 'object' &&
