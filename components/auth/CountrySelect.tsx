@@ -10,9 +10,14 @@ const COUNTRY_NAMES = countries
 type CountrySelectProps = {
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 };
 
-export default function CountrySelect({ value, onChange }: CountrySelectProps) {
+export default function CountrySelect({
+  value,
+  error,
+  onChange,
+}: CountrySelectProps) {
   return (
     <div>
       <label className='mb-1.5 block text-sm font-semibold text-text'>
@@ -32,12 +37,14 @@ export default function CountrySelect({ value, onChange }: CountrySelectProps) {
               <Listbox.Option
                 key={c}
                 value={c}
+                aria-invalid={!!error}
                 className='cursor-pointer px-3 py-2 data-[focus]:bg-primary/10 data-[selected]:font-semibold data-[selected]:text-primary'
               >
                 {c}
               </Listbox.Option>
             ))}
           </Listbox.Options>
+          {error && <p className='mt-1 text-xs text-down'>{error}</p>}
         </div>
       </Listbox>
 

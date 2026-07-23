@@ -1,10 +1,54 @@
+'use client';
+
 import { ArrowRight, Mail } from 'lucide-react';
 import Link from 'next/link';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setSubmitting(true);
+    setFormError('');
+
+    const payload = Object.fromEntries(new FormData(e.currentTarget));
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push('/dashboard');
+        return;
+      }
+
+      if (res.status === 403 && data.code === 'UNVERIFIED') {
+        router.push('/verify-email');
+        return;
+      }
+
+      setFormError(data.error ?? 'Something went wrong');
+    } catch {
+      setFormError('Could not reach the server. Check your connection.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <AuthSplit>
       <div className='flex flex-col gap-4 rounded-xl border border-primary/30 p-8 shadow-lg md:border-0 md:p-0 md:shadow-none'>
@@ -15,7 +59,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form className='space-y-6'>
+        <form onSubmit={handleLogin} noValidate className='space-y-6'>
+          {formError && (
+            <p className='rounded-lg border border-down/30 bg-down/10 px-3 py-2 text-sm text-down'>
+              {formError}
+            </p>
+          )}
+
           <Field
             id='email'
             label='Email'
@@ -50,9 +100,11 @@ export default function LoginPage() {
 
           <button
             type='submit'
-            className='flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-semibold text-surface transition hover:bg-primary-press active:scale-[0.99] active:bg-primary-press active:shadow-lg'
+            disabled={submitting}
+            className='flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-semibold text-surface transition hover:bg-primary-press active:scale-[0.99] active:bg-primary-press active:shadow-lg disabled:cursor-not-allowed disabled:opacity-60'
           >
-            Sign in <ArrowRight size={16} />
+            {submitting ? 'Signing in...' : 'Sign in'}
+            {!submitting && <ArrowRight size={16} />}
           </button>
 
           <p className='flex justify-center gap-2 text-sm'>

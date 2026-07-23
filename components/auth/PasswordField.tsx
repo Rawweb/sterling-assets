@@ -9,6 +9,7 @@ type PasswordFieldProps = {
   name?: string;
   placeholder?: string;
   required?: boolean;
+  error?: string
 };
 
 export default function PasswordField({
@@ -16,6 +17,7 @@ export default function PasswordField({
   label,
   name =id,
   placeholder,
+  error,
   required = false,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
@@ -37,6 +39,7 @@ export default function PasswordField({
           type={show ? 'text' : 'password'}
           placeholder={placeholder}
           required={required}
+          aria-invalid={!!error}
           className='min-w-0 flex-1 bg-transparent py-3 text-sm outline-none'
         />
         <button
@@ -48,6 +51,8 @@ export default function PasswordField({
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
+
+      {error && <p className='mt-1 text-xs text-down'>{error}</p>}
     </div>
   );
 }

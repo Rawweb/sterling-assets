@@ -9,7 +9,7 @@ const email = z
 const password = z
   .string()
   .min(8, { error: 'Password must be at least 8 characters' })
-  .max(72, { error: 'Password is too long' })
+  .max(72, { error: 'Password is too long' });
 //   .regex(/[0-9]/, { error: 'Password must contain at least one number' });
 
 // ── Register ─────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ export const registerSchema = z
       .trim()
       .max(40)
       .optional()
-      .transform((r) => (r === '' ? undefined : r)),
+      .transform((v) => (v === '' ? undefined : v)),
   })
   // Cross-field rule: runs only after every field above passes.
   .refine((data) => data.password === data.confirmPassword, {
@@ -52,7 +52,9 @@ export const registerSchema = z
 export const loginSchema = z.object({
   email,
   password: z.string().min(1, { error: 'Enter your password' }),
-  remember: z.boolean().optional(),
+  remember: z
+    .preprocess((v) => v === 'on' || v === true, z.boolean())
+    .optional(),
 });
 
 // ── Types generated from the schemas ─────────────────────────────────────────
