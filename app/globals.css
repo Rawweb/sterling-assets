@@ -15,6 +15,10 @@
   --color-line: #e6e9f0;
   --color-surface: #ffffff;
   --color-bg: #f7f9fc;
+
+  --color-navy-900: #0b1220;
+  --color-navy-700: #16224a;
+  --color-navy-500: #243a86;
 }
 
 @theme inline {
@@ -29,6 +33,17 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-display), sans-serif;
+}
+
+.bg-auth-visual {
+  background: linear-gradient(
+    160deg,
+    var(--color-navy-900),
+    var(--color-navy-700) 60%,
+    var(--color-navy-500)
+  );
 }
