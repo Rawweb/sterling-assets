@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 
 const COOKIE_NAME = 'session';
+const PENDING_COOKIE = 'pending_email';
 
 function hashToken(token: string) {
   return createHash('sha256').update(token).digest('hex');
@@ -66,4 +67,25 @@ export async function destroySession() {
   }
 
   jar.delete(COOKIE_NAME);
+}
+
+export async function setPendingEmail(email: string) {
+  const jar = await cookies();
+  jar.set(PENDING_COOKIE, email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60, // 1 hour, in seconds
+  });
+}
+
+export async function getPendingEmail() {
+  const jar = await cookies();
+  return jar.get(PENDING_COOKIE)?.value ?? null;
+}
+
+export async function clearPendingEmail() {
+  const jar = await cookies();
+  jar.delete(PENDING_COOKIE);
 }

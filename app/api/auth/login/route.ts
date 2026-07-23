@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
 import { loginSchema } from '@/lib/validation';
-import { createSession } from '@/lib/session';
+import { createSession, setPendingEmail } from '@/lib/session';
 
 const DUMMY_HASH = '$2b$12$abcdefghijklmnopqrstuuWDlDPmZuGtaEYIvHTQyyBpNZ8p9L6';
 
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user.emailVerified) {
+      await setPendingEmail(email)
       return Response.json(
         {
           error: 'Please verify your email before signing in',

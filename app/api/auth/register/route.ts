@@ -3,6 +3,9 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { registerSchema } from '@/lib/validation';
+import { createVerificationToken } from '@/lib/token';
+import { sendVerificationEmail } from '@/lib/mail';
+import { setPendingEmail } from '@/lib/session';
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -50,6 +53,10 @@ export async function POST(req: NextRequest) {
       },
       select: { id: true, email: true, fullName: true },
     });
+
+    const token = await createVerificationToken(user.id);
+    await sendVerificationEmail(user.email, token);
+    await setPendingEmail(user.email);
 
     return Response.json({ ok: true, user }, { status: 201 });
   } catch (error) {
