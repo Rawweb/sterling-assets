@@ -40,6 +40,8 @@ export default function CountrySelect({ value, onChange }: CountrySelectProps) {
           </Listbox.Options>
         </div>
       </Listbox>
+
+      <input type='hidden' name='country' value={value} />
     </div>
   );
 }
