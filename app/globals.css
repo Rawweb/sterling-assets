@@ -19,12 +19,31 @@
   --color-navy-900: #0b1220;
   --color-navy-700: #16224a;
   --color-navy-500: #243a86;
+
+  /* on dark surfaces */
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #8a95ab;
+
+  /* sidebar width */
+  --spacing-sidebar: 268px;
+
+  /* marquee */
+  --animate-marquee: marquee 32s linear infinite;
 }
 
 @theme inline {
   --font-display: var(--font-space-grotesk);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-ibm-plex-mono);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 body {
