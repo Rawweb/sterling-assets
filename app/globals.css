@@ -26,6 +26,7 @@
 
   /* sidebar width */
   --spacing-sidebar: 268px;
+  --container-shell: 1400px;
 
   /* marquee */
   --animate-marquee: marquee 32s linear infinite;

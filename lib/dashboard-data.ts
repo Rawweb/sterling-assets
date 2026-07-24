@@ -38,11 +38,48 @@ export const demoUser = {
   isOnline: true,
 };
 
+export type ReferralRow = {
+  id: string;
+  name: string;
+  joinedAt: string;
+  hasInvested: boolean;
+  bonusCents: number;
+};
+
+export const referrals: ReferralRow[] = [
+  {
+    id: 'r1',
+    name: 'Marcus Adeyemi',
+    joinedAt: '2026-07-18',
+    hasInvested: true,
+    bonusCents: 30000,
+  },
+  {
+    id: 'r2',
+    name: 'Lena Ortiz',
+    joinedAt: '2026-07-12',
+    hasInvested: false,
+    bonusCents: 0,
+  },
+  {
+    id: 'r3',
+    name: 'Kwame Boateng',
+    joinedAt: '2026-06-30',
+    hasInvested: false,
+    bonusCents: 0,
+  },
+];
+
+export const referralEarnedCents = referrals.reduce(
+  (s, r) => s + r.bonusCents,
+  0,
+);
+
 export const summary = {
   balanceCents: 458450,
   totalProfitCents: 128450,
   bonusCents: 5000,
-  referralBonusCents: 25000,
+  referralBonusCents: referralEarnedCents,
   totalDepositCents: 1250000,
   totalWithdrawalCents: 200000,
 };

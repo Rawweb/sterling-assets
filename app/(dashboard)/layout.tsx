@@ -1,5 +1,5 @@
-import Sidebar from '@/components/shell/Sidebar';
 import Topbar from '@/components/shell/Topbar';
+import Sidebar from '@/components/shell/Sidebar';
 
 export default function UserDashboardLayout({
   children,
@@ -7,18 +7,22 @@ export default function UserDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      {/* Top Bar */}
-      <div className='fixed top-0 left-0 right-0 h-16 z-40 bg-navy-900 text-surface flex items-center px-4'>
-        <Topbar />
-      </div>
+    <div className='min-h-screen bg-bg'>
+      {/* full-bleed bar, capped contents */}
+      <header className='fixed inset-x-0 top-0 z-40 h-16 bg-navy-900'>
+        <div className='mx-auto h-full max-w-shell'>
+          <Topbar />
+        </div>
+      </header>
 
-      {/* Sidebar */}
-      <div className='fixed top-16 bottom-0 left-0 w-sidebar z-30 hidden lg:flex bg-bg'>
-        <Sidebar />
-      </div>
+      {/* capped shell */}
+      <div className='mx-auto flex max-w-shell pt-16'>
+        <aside className='sticky top-16 hidden h-[calc(100dvh-4rem)] w-sidebar shrink-0 lg:block'>
+          <Sidebar />
+        </aside>
 
-      <main className='pt-16 lg:ml-sidebar min-h-screen bg-bg'>{children}</main>
+        <main className='min-w-0 flex-1'>{children}</main>
+      </div>
     </div>
   );
 }
