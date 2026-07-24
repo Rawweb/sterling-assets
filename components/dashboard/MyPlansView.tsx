@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
 import Tabs from '@/components/ui/Tabs';
+import Stat from '@/components/ui/Stat';
 import PlanCard from '@/components/dashboard/PlanCard';
 import EmptyState from '@/components/ui/EmptyState';
 import { formatCents } from '@/lib/money';
@@ -26,16 +27,14 @@ export default function MyPlansView() {
 
   const invested = userPlans.reduce((s, p) => s + p.investedCents, 0);
   const earned = userPlans.reduce((s, p) => s + p.earnedCents, 0);
+  const activeCount = userPlans.filter((p) => p.status === 'active').length;
 
   return (
     <>
       <div className='mb-5 grid gap-3.5 sm:grid-cols-3'>
         <Stat label='Total invested' value={formatCents(invested)} />
         <Stat label='Total earned' value={formatCents(earned)} tone='up' />
-        <Stat
-          label='Active plans'
-          value={String(userPlans.filter((p) => p.status === 'active').length)}
-        />
+        <Stat label='Active plans' value={String(activeCount)} />
       </div>
 
       <Tabs tabs={TABS} active={tab} onChange={setTab} />
@@ -62,26 +61,5 @@ export default function MyPlansView() {
         </div>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: 'up';
-}) {
-  return (
-    <div className='rounded-[14px] border border-line bg-bg px-4 py-3.5'>
-      <p className='text-xs text-muted'>{label}</p>
-      <p
-        className={`mt-1 font-mono text-lg font-semibold ${tone === 'up' ? 'text-up' : ''}`}
-      >
-        {value}
-      </p>
-    </div>
   );
 }

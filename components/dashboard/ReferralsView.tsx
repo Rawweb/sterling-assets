@@ -3,6 +3,7 @@
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Badge from '@/components/ui/Badge';
 import CopyField from '@/components/ui/CopyField';
+import Stat from '@/components/ui/Stat';
 import { formatCents, formatDate } from '@/lib/money';
 import {
   referral,
@@ -81,26 +82,5 @@ export default function ReferralsView() {
         }}
       />
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: 'up';
-}) {
-  return (
-    <div className='rounded-[14px] border border-line bg-bg px-4 py-3.5'>
-      <p className='text-xs text-muted'>{label}</p>
-      <p
-        className={`mt-1 font-mono text-lg font-semibold ${tone === 'up' ? 'text-up' : ''}`}
-      >
-        {value}
-      </p>
-    </div>
   );
 }

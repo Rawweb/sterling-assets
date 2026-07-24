@@ -9,6 +9,9 @@ import {
   LayoutGrid,
   Layers,
   Share2,
+  Bitcoin,
+  Coins,
+  CircleDollarSign,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -31,7 +34,6 @@ export const userNav: NavItem[] = [
   { label: 'My plans', href: '/dashboard/my-plans', icon: Layers },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Share2 },
 ];
-
 
 export const demoUser = {
   fullName: 'Joplin Natasha Sabrina',
@@ -437,5 +439,102 @@ export const profitHistory: ProfitRow[] = [
     plan: 'Growth',
     amountCents: 4000,
     type: 'Plan bonus',
+  },
+];
+
+// Plans Data
+export type Plan = {
+  id: string;
+  name: string;
+  minCents: number;
+  maxCents: number | null;
+  dailyRatePct: number;
+  durationDays: number;
+  referralPct: number;
+};
+
+export const plans: Plan[] = [
+  {
+    id: 'a1',
+    name: 'Asset 1',
+    minCents: 10000,
+    maxCents: 499900,
+    dailyRatePct: 1.2,
+    durationDays: 5,
+    referralPct: 5,
+  },
+  {
+    id: 'a2',
+    name: 'Asset 2',
+    minCents: 500000,
+    maxCents: 999900,
+    dailyRatePct: 1.7,
+    durationDays: 5,
+    referralPct: 5,
+  },
+  {
+    id: 'a3',
+    name: 'Asset 3',
+    minCents: 1000000,
+    maxCents: 1999900,
+    dailyRatePct: 2.2,
+    durationDays: 5,
+    referralPct: 5,
+  },
+  {
+    id: 'a4',
+    name: 'Asset 4',
+    minCents: 2000000,
+    maxCents: 4999900,
+    dailyRatePct: 3.0,
+    durationDays: 10,
+    referralPct: 5,
+  },
+  {
+    id: 'a5',
+    name: 'Asset 5',
+    minCents: 5000000,
+    maxCents: null,
+    dailyRatePct: 4.2,
+    durationDays: 30,
+    referralPct: 5,
+  },
+];
+
+
+// Deposit data
+export type DepositMethod = {
+  id: string;
+  coin: string;
+  network: string;
+  address: string;
+  minCents: number;
+  icon: LucideIcon;
+};
+
+export const depositMethods: DepositMethod[] = [
+  {
+    id: 'btc',
+    coin: 'Bitcoin',
+    network: 'BTC',
+    address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+    minCents: 5000,
+    icon: Bitcoin,
+  },
+  {
+    id: 'eth',
+    coin: 'Ethereum',
+    network: 'ERC20',
+    address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1',
+    minCents: 5000,
+    icon: Coins,
+  },
+  {
+    id: 'usdt',
+    coin: 'USDT',
+    network: 'TRC20',
+    address: 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxbxa1',
+    minCents: 2000,
+    icon: CircleDollarSign,
   },
 ];
