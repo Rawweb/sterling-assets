@@ -38,8 +38,17 @@ export const userNav: NavItem[] = [
 export const demoUser = {
   fullName: 'Joplin Natasha Sabrina',
   isOnline: true,
+  kycStatus: 'approved' as 'none' | 'pending' | 'approved' | 'rejected',
 };
 
+// withdrwal
+export const withdrawalConfig = {
+  minCents: 500,
+  // feePct: 2,
+};
+
+
+// referral
 export type ReferralRow = {
   id: string;
   name: string;
