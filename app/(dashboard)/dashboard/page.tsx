@@ -101,7 +101,7 @@ export default function DashboardHome() {
           {activePlans.length > 0 && (
             <Link
               href='/dashboard/my-plans'
-              className='text-[13px] font-semibold text-primary hover:underline'
+              className='text-[13px] font-semibold text-primary hover:underline active:text-primary-press'
             >
               View all
             </Link>
@@ -139,7 +139,7 @@ export default function DashboardHome() {
           </h2>
           <Link
             href='/dashboard/transactions'
-            className='text-[13px] font-semibold text-primary hover:underline'
+            className='text-[13px] font-semibold text-primary hover:underline active:text-primary-press'
           >
             View all
           </Link>

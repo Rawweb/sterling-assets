@@ -58,6 +58,12 @@ h3 {
   font-family: var(--font-display), sans-serif;
 }
 
+button,
+a,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .bg-auth-visual {
   background: linear-gradient(
     160deg,

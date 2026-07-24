@@ -35,7 +35,6 @@ export const userNav: NavItem[] = [
 
 export const demoUser = {
   fullName: 'Joplin Natasha Sabrina',
-  balanceCents: 0,
   isOnline: true,
 };
 
@@ -67,6 +66,60 @@ export const recentTransactions: Transaction[] = [
   { id: 't3', date: '2026-07-21', type: 'Deposit', amountCents: 500000 },
 ];
 
+export type UserPlan = {
+  id: string;
+  name: string;
+  investedCents: number;
+  durationDays: number;
+  daysPaid: number;
+  earnedCents: number;
+  status: 'active' | 'expired';
+  startDate: string;
+};
+
+export const userPlans: UserPlan[] = [
+  {
+    id: 'p1',
+    name: 'Growth',
+    investedCents: 500000,
+    durationDays: 14,
+    daysPaid: 9,
+    earnedCents: 72000,
+    status: 'active',
+    startDate: '2026-07-15',
+  },
+  {
+    id: 'p2',
+    name: 'Starter',
+    investedCents: 250000,
+    durationDays: 7,
+    daysPaid: 3,
+    earnedCents: 9000,
+    status: 'active',
+    startDate: '2026-07-21',
+  },
+  {
+    id: 'p3',
+    name: 'Starter',
+    investedCents: 100000,
+    durationDays: 7,
+    daysPaid: 7,
+    earnedCents: 8400,
+    status: 'expired',
+    startDate: '2026-06-20',
+  },
+  {
+    id: 'p4',
+    name: 'Balanced',
+    investedCents: 300000,
+    durationDays: 21,
+    daysPaid: 21,
+    earnedCents: 63000,
+    status: 'expired',
+    startDate: '2026-05-28',
+  },
+];
+
 export type ActivePlan = {
   id: string;
   name: string;
@@ -76,24 +129,7 @@ export type ActivePlan = {
   earnedCents: number;
 };
 
-export const activePlans: ActivePlan[] = [
-  {
-    id: 'p1',
-    name: 'Growth',
-    investedCents: 500000,
-    durationDays: 14,
-    daysPaid: 9,
-    earnedCents: 72000,
-  },
-  {
-    id: 'p2',
-    name: 'Starter',
-    investedCents: 250000,
-    durationDays: 7,
-    daysPaid: 3,
-    earnedCents: 9000,
-  },
-];
+export const activePlans = userPlans.filter((p) => p.status === 'active');
 
 export const referral = {
   code: 'HxUf7U',
@@ -271,3 +307,98 @@ export const otherTransactions: OtherRow[] = [
 ];
 
 export const pageSizeOptions = [10, 25, 50];
+
+export type ProfitRow = {
+  id: string;
+  date: string;
+  plan: string;
+  amountCents: number;
+  type: 'Daily return' | 'Plan bonus';
+};
+
+export const profitHistory: ProfitRow[] = [
+  {
+    id: 'pr1',
+    date: '2026-07-24',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr2',
+    date: '2026-07-23',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr3',
+    date: '2026-07-23',
+    plan: 'Starter',
+    amountCents: 3000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr4',
+    date: '2026-07-22',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr5',
+    date: '2026-07-22',
+    plan: 'Starter',
+    amountCents: 3000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr6',
+    date: '2026-07-21',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr7',
+    date: '2026-07-20',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr8',
+    date: '2026-07-19',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr9',
+    date: '2026-07-18',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr10',
+    date: '2026-07-17',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr11',
+    date: '2026-07-16',
+    plan: 'Growth',
+    amountCents: 8000,
+    type: 'Daily return',
+  },
+  {
+    id: 'pr12',
+    date: '2026-07-15',
+    plan: 'Growth',
+    amountCents: 4000,
+    type: 'Plan bonus',
+  },
+];

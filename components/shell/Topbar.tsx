@@ -20,7 +20,7 @@ export default function Topbar() {
         <button
           type='button'
           aria-label='Notifications'
-          className='grid size-10 place-items-center rounded-[10px] border border-on-navy/10 text-on-navy-muted transition-colors hover:text-on-navy'
+          className='grid size-10 place-items-center rounded-[10px] border border-on-navy/10 text-on-navy-muted transition-colors hover:text-surface active:bg-surface/10 active:scale-[0.95]'
         >
           <Bell size={18} />
         </button>

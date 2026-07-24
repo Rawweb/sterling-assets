@@ -34,7 +34,7 @@ export default function CopyField({ value }: { value: string }) {
       <button
         type='button'
         onClick={copy}
-        className='flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold transition-colors hover:border-primary hover:text-primary'
+        className='flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold transition-colors hover:border-primary hover:text-primary active:scale-[0.99]'
       >
         {state === 'copied' && <Check size={16} className='text-up' />}
         {state === 'failed' && (

@@ -33,7 +33,7 @@ export default function UserMenu() {
   }, [open]);
 
   const itemClass =
-    'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-text transition-colors hover:bg-bg';
+    'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-text transition-colors hover:bg-bg active:bg-line/50';
 
   return (
     <div ref={wrapRef} className='relative'>
@@ -43,7 +43,7 @@ export default function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup='menu'
-        className='flex items-center gap-2 rounded-full border border-on-navy/10 py-1.5 pl-1.5 pr-2.5 text-on-navy transition-colors hover:bg-on-navy/10'
+        className='flex items-center gap-2 rounded-full border border-on-navy/10 py-1.5 pl-1.5 pr-2.5 text-on-navy transition-colors hover:bg-on-navy/10  active:bg-surface/20 active:scale-[0.97]'
       >
         <span className='grid size-7 place-items-center rounded-full bg-surface text-navy-900'>
           <User size={16} />
@@ -78,7 +78,7 @@ export default function UserMenu() {
             <button
               role='menuitem'
               type='submit'
-              className='flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-down transition-colors hover:bg-down/10'
+              className='flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-down transition-colors hover:bg-down/10 active:bg-down/20'
             >
               <LogOut size={16} />
               Log out

@@ -42,7 +42,7 @@ export default function MobileNav({ children }: { children: React.ReactNode }) {
         onClick={() => setOpen(true)}
         aria-label='Open menu'
         aria-expanded={open}
-        className='grid size-8 place-items-center rounded-[10px] border border-surface/10 text-surface lg:hidden'
+        className='grid size-8 place-items-center rounded-[10px] border border-surface/10 text-surface lg:hidden active:bg-surface/10 active:scale-[0.95]'
       >
         <Menu size={20} />
       </button>
@@ -63,7 +63,7 @@ export default function MobileNav({ children }: { children: React.ReactNode }) {
             type='button'
             onClick={() => setOpen(false)}
             aria-label='Close menu'
-            className='grid size-8 place-items-center rounded-[10px] border border-surface/10 text-surface'
+            className='grid size-8 place-items-center rounded-[10px] border border-surface/10 text-surface active:bg-surface/10 active:scale-[0.95]'
           >
             <X size={22} />
           </button>
