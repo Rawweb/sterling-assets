@@ -3,12 +3,12 @@ import NavLink from '@/components/shell/NavLink';
 import Link from 'next/link';
 import ProfileCard from '@/components/shell/ProfileCard';
 
-export default function Sidebar() {
+export default function Sidebar({ fullName, balanceCents }: { fullName: string; balanceCents: number }) {
   return (
     <div className='flex h-full w-full flex-col overflow-y-auto px-3.5 py-4'>
       {/* profile card placeholder */}
       <div className='mb-2 rounded-2xl bg-navy-900'>
-        <ProfileCard />
+        <ProfileCard fullName={fullName} balanceCents={balanceCents} />
       </div>
 
       <nav className='grid flex-1 grid-cols-2 content-start gap-3 py-4'>

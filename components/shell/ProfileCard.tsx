@@ -1,9 +1,9 @@
 import { User, Wallet } from 'lucide-react';
-import { demoUser, summary } from '@/lib/dashboard-data';
+import { demoUser } from '@/lib/dashboard-data';
 import { formatCents } from '@/lib/money';
 
-export default function ProfileCard() {
-  const { fullName, isOnline } = demoUser;
+export default function ProfileCard({fullName, balanceCents }: {fullName: string; balanceCents: number }) {
+  const isOnline = true;
 
   return (
     <div className='flex flex-col items-center rounded-2xl bg-navy-900 px-3 py-4 text-center'>
@@ -22,7 +22,7 @@ export default function ProfileCard() {
 
       <span className='mt-3 inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-3.5 py-1.5 font-mono text-[13px] text-surface'>
         <Wallet size={14} />
-        {formatCents(summary.balanceCents)}
+        {formatCents(balanceCents)}
       </span>
     </div>
   );

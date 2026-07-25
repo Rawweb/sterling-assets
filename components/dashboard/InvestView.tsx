@@ -5,15 +5,15 @@ import { ChevronDown, Wallet } from 'lucide-react';
 
 import PlanTierCard from './PlanTierCard';
 import { formatCents } from '@/lib/money';
-import { plans, summary } from '@/lib/dashboard-data';
+import { plans } from '@/lib/dashboard-data';
 import DetailRow from '@/components/ui/DetailRow';
 
-export default function InvestView() {
+export default function InvestView({ balanceCents }: { balanceCents: number }) {
   const [planId, setPlanId] = useState(plans[0].id);
   const [amount, setAmount] = useState('');
 
   const plan = plans.find((p) => p.id === planId)!;
-  const balance = summary.balanceCents;
+  const balance = balanceCents;
 
   const cents = Math.round((parseFloat(amount) || 0) * 100);
   const projected = Math.round(

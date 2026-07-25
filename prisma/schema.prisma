@@ -28,8 +28,9 @@ model User {
   updatedAt     DateTime   @updatedAt
   kycStatus     KycStatus  @default(NONE )
 
-  sessions      Session[]
-  verificationToken VerificationToken[]
+  sessions            Session[]
+  verificationToken   VerificationToken[]
+  ledger              Ledger[]
 }
 
 model Session {
@@ -57,4 +58,28 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// ledger
+enum LedgerType {
+  DEPOSIT
+  WITHDRAWAL
+  PROFIT
+  INVESTMENT
+  BONUS
+  REFERRAL_BONUS
+  ADJUSTMENT
+}
+
+model Ledger {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int        // integer cents, positive credit, negative debit
+  type        LedgerType
+  referenceId String?    // links to the deposit/withdrawal/plan that caused it
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([userId, type])
 }

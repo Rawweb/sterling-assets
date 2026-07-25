@@ -7,28 +7,26 @@ import { ShieldAlert, Clock, XCircle } from 'lucide-react';
 import DetailRow from '@/components/ui/DetailRow';
 import { formatCents } from '@/lib/money';
 import {
-  demoUser,
-  summary,
   depositMethods,
   withdrawalConfig,
 } from '@/lib/dashboard-data';
 
 const GATE = {
-  none: {
+  NONE: {
     icon: ShieldAlert,
     tone: 'text-gold',
     title: 'Verify your identity first',
     body: 'Withdrawals are locked until your identity is verified. It takes a few minutes.',
     cta: 'Start verification',
   },
-  pending: {
+  PENDING: {
     icon: Clock,
     tone: 'text-primary',
     title: 'Verification under review',
     body: 'We are reviewing your documents. Withdrawals unlock as soon as this is approved.',
     cta: 'View status',
   },
-  rejected: {
+  REJECTED: {
     icon: XCircle,
     tone: 'text-down',
     title: 'Verification was rejected',
@@ -37,13 +35,19 @@ const GATE = {
   },
 } as const;
 
-export default function WithdrawView() {
+export default function WithdrawView({
+  balanceCents,
+  kycStatus,
+}: {
+  balanceCents: number;
+  kycStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+}) {
   const [methodId, setMethodId] = useState(depositMethods[0].id);
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
 
-  if (demoUser.kycStatus !== 'approved') {
-    const g = GATE[demoUser.kycStatus];
+  if (kycStatus !== 'APPROVED') {
+    const g = GATE[kycStatus as keyof typeof GATE];
     const Icon = g.icon;
 
     return (
@@ -62,7 +66,7 @@ export default function WithdrawView() {
   }
 
   const method = depositMethods.find((m) => m.id === methodId)!;
-  const balance = summary.balanceCents;
+  const balance = balanceCents;
 
   const cents = Math.round((parseFloat(amount) || 0) * 100);
   // const fee = Math.round((cents * withdrawalConfig.feePct) / 100);

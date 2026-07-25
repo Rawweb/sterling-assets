@@ -2,14 +2,16 @@ import Topbar from '@/components/shell/Topbar';
 import Sidebar from '@/components/shell/Sidebar';
 import { getViewer } from '@/lib/viewer';
 import { redirect } from 'next/navigation';
+import { getSummary } from '@/lib/ledger';
 
 export default async function UserDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const viewer = await getViewer;
+  const viewer = await getViewer();
   if (!viewer) redirect('/login');
+  const summary = await getSummary(viewer.id);
 
   return (
     <div className='min-h-screen bg-bg'>
@@ -23,7 +25,7 @@ export default async function UserDashboardLayout({
       {/* capped shell */}
       <div className='mx-auto flex max-w-shell pt-16'>
         <aside className='sticky top-16 hidden h-[calc(100dvh-4rem)] w-sidebar shrink-0 lg:block'>
-          <Sidebar />
+          <Sidebar fullName={viewer.fullName} balanceCents={summary.balanceCents} />
         </aside>
 
         <main className='min-w-0 flex-1'>{children}</main>

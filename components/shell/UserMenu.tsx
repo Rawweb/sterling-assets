@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { User, ChevronDown, LogOut, UserCircle, Settings } from 'lucide-react';
-import { demoUser } from '@/lib/dashboard-data';
+import { User, ChevronDown, LogOut, UserCircle } from 'lucide-react';
 
-export default function UserMenu() {
+export default function UserMenu({ fullName }: { fullName: string }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -49,7 +48,7 @@ export default function UserMenu() {
           <User size={16} />
         </span>
         <span className='hidden text-[13px] font-semibold sm:block'>
-          {demoUser.fullName}
+          {fullName}
         </span>
         <ChevronDown
           size={16}

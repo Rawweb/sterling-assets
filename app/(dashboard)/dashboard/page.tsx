@@ -10,13 +10,14 @@ import {
 } from 'lucide-react';
 
 import {
-  demoUser,
-  summary,
   referral,
   recentTransactions,
   activePlans,
 } from '@/lib/dashboard-data';
 import { formatCents, formatSignedCents, formatDate } from '@/lib/money';
+import { getViewer } from '@/lib/viewer';
+import { getSummary } from '@/lib/ledger';
+import { redirect } from 'next/navigation';
 
 import PageShell from '@/components/dashboard/PageShell';
 import MarketTicker from '@/components/dashboard/MarketTicker';
@@ -33,8 +34,12 @@ function Count({ n }: { n: number }) {
   );
 }
 
-export default function DashboardHome() {
-  const firstName = demoUser.fullName.split(' ')[0];
+export default async function DashboardHome() {
+  const viewer = await getViewer();
+  if (!viewer) redirect('/login');
+  const summary = await getSummary(viewer.id);
+  
+  const firstName = viewer.fullName.split(' ')[0];
 
   const cards = [
     {
