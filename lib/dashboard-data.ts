@@ -37,6 +37,10 @@ export const userNav: NavItem[] = [
 
 export const demoUser = {
   fullName: 'Joplin Natasha Sabrina',
+  email: 'joplin@example.com',
+  country: 'Australia',
+  phone: '+61 400 000 000',
+  avatarUrl: null as string | null,
   isOnline: true,
   kycStatus: 'approved' as 'none' | 'pending' | 'approved' | 'rejected',
 };
@@ -546,4 +550,13 @@ export const depositMethods: DepositMethod[] = [
     minCents: 2000,
     icon: CircleDollarSign,
   },
+];
+
+// Kyc
+export type DocType = 'national_id' | 'passport' | 'drivers_license';
+
+export const docTypes: { id: DocType; label: string }[] = [
+  { id: 'national_id', label: 'National ID' },
+  { id: 'passport', label: `Int'l Passport` },
+  { id: 'drivers_license', label: "Driver's license" },
 ];

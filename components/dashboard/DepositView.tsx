@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { AlertTriangle, Upload, ArrowLeft, X } from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import DetailRow from '@/components/ui/DetailRow';
 import CopyField from '@/components/ui/CopyField';
 import { formatCents } from '@/lib/money';
 import { depositMethods } from '@/lib/dashboard-data';
 import { QRCodeSVG } from 'qrcode.react';
+import FileDrop from '@/components/ui/FileDrop';
 
 export default function DepositView() {
   const [methodId, setMethodId] = useState(depositMethods[0].id);
@@ -22,39 +23,6 @@ export default function DepositView() {
       : null;
 
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!file) {
-      setPreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-
-  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const picked = e.target.files?.[0] ?? null;
-    e.target.value = '';
-
-    if (!picked) return;
-
-    if (!['image/png', 'image/jpeg'].includes(picked.type)) {
-      setFileError('Only PNG or JPG files are allowed.');
-      setFile(null);
-      return;
-    }
-    if (picked.size > 5 * 1024 * 1024) {
-      setFileError('That file is larger than 5MB.');
-      setFile(null);
-      return;
-    }
-
-    setFileError(null);
-    setFile(picked);
-  }
 
   if (confirmed) {
     return (
@@ -97,53 +65,15 @@ export default function DepositView() {
               </p>
             </div>
 
-            <p className='mb-1.5 mt-6 text-sm font-medium'>
-              Upload proof of payment
-            </p>
-
-            {file && preview ? (
-              <div className='rounded-xl border border-line p-3.5'>
-                <div className='flex items-start gap-3.5'>
-                  <img
-                    src={preview}
-                    alt='Proof of payment preview'
-                    className='size-20 shrink-0 rounded-lg border border-line object-cover'
-                  />
-                  <div className='min-w-0 flex-1'>
-                    <p className='truncate text-sm font-medium'>{file.name}</p>
-                    <p className='mt-0.5 text-xs text-muted'>
-                      {(file.size / 1024).toFixed(0)} KB
-                    </p>
-                  </div>
-                  <button
-                    type='button'
-                    onClick={() => setFile(null)}
-                    aria-label='Remove file'
-                    className='grid size-8 shrink-0 place-items-center rounded-lg text-muted transition hover:text-down active:scale-95'
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <label className='flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-line px-4 py-8 text-center transition hover:border-primary active:scale-[0.99]'>
-                <Upload size={22} className='text-muted' />
-                <span className='text-sm font-medium'>Choose a screenshot</span>
-                <span className='text-xs text-muted'>
-                  PNG or JPG, up to 5MB
-                </span>
-                <input
-                  type='file'
-                  accept='image/png,image/jpeg'
-                  onChange={onPick}
-                  className='sr-only'
-                />
-              </label>
-            )}
-
-            {fileError && (
-              <p className='mt-1.5 text-[13px] text-down'>{fileError}</p>
-            )}
+            <div className='mt-6'>
+              <FileDrop
+                id='deposit-proof'
+                label='Upload proof of payment'
+                file={file}
+                onChange={setFile}
+                hint='Screenshot of your payment, PNG or JPG'
+              />
+            </div>
           </div>
 
           <aside className='h-fit rounded-[14px] border border-line bg-bg p-5'>
