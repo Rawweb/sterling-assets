@@ -1,24 +1,30 @@
 import 'server-only';
-import { demoUser, summary } from './dashboard-data';
+import { getCurrentUser } from './session';
 
 export type Viewer = {
+  id: string;
   fullName: string;
   email: string;
-  country: string;
   phone: string;
-  avatarUrl: string | null;
-  kycStatus: 'none' | 'pending' | 'approved' | 'rejected';
-  balanceCents: number;
+  country: string;
+  kycStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  role: 'USER' | 'ADMIN';
+  emailVerified: boolean;
 };
 
-export async function getViewer(): Promise<Viewer> {
+export async function getViewer(): Promise<Viewer | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  if (!user.emailVerified) return null;
+
   return {
-    fullName: demoUser.fullName,
-    email: demoUser.email,
-    country: demoUser.country,
-    phone: demoUser.phone,
-    avatarUrl: demoUser.avatarUrl,
-    kycStatus: demoUser.kycStatus,
-    balanceCents: summary.balanceCents,
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    phone: user.phone ?? '',
+    country: user.country ?? '',
+    kycStatus: user.kycStatus,
+    role: user.role,
+    emailVerified: !!user.emailVerified,
   };
 }

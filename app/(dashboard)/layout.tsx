@@ -1,11 +1,16 @@
 import Topbar from '@/components/shell/Topbar';
 import Sidebar from '@/components/shell/Sidebar';
+import { getViewer } from '@/lib/viewer';
+import { redirect } from 'next/navigation';
 
-export default function UserDashboardLayout({
+export default async function UserDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const viewer = await getViewer;
+  if (!viewer) redirect('/login');
+
   return (
     <div className='min-h-screen bg-bg'>
       {/* full-bleed bar, capped contents */}

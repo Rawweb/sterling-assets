@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+enum KycStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // user
 model User {
   id            String     @id @default(cuid())
@@ -19,6 +26,7 @@ model User {
   role          Role       @default(USER)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  kycStatus     KycStatus  @default(NONE )
 
   sessions      Session[]
   verificationToken VerificationToken[]
