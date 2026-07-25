@@ -21,13 +21,18 @@ export async function getSummary(userId: string) {
 
   const balance = rows.reduce((sum, r) => sum + (r._sum.amount ?? 0), 0);
 
+  // total withdrawal = approved withdrawals only, from the Withdrawal table
+  const withdrawn = await prisma.withdrawal.aggregate({
+    where: { userId, status: 'APPROVED' },
+    _sum: { amount: true },
+  });
+
   return {
     balanceCents: balance,
     totalProfitCents: byType('PROFIT'),
     bonusCents: byType('BONUS'),
     referralBonusCents: byType('REFERRAL_BONUS'),
     totalDepositCents: byType('DEPOSIT'),
-    // withdrawals are stored negative; flip the sign for display
-    totalWithdrawalCents: Math.abs(byType('WITHDRAWAL')),
+    totalWithdrawalCents: withdrawn._sum.amount ?? 0,
   };
 }

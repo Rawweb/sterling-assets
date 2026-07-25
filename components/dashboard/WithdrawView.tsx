@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldAlert, Clock, XCircle } from 'lucide-react';
-
+import { ShieldAlert, Clock, XCircle, Check } from 'lucide-react';
 import DetailRow from '@/components/ui/DetailRow';
 import { formatCents } from '@/lib/money';
 import {
@@ -45,6 +44,9 @@ export default function WithdrawView({
   const [methodId, setMethodId] = useState(depositMethods[0].id);
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   if (kycStatus !== 'APPROVED') {
     const g = GATE[kycStatus as keyof typeof GATE];
@@ -65,6 +67,38 @@ export default function WithdrawView({
     );
   }
 
+  async function handleSubmit() {
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch('/api/withdrawals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: cents,
+          coin: `${method.coin}`,
+          address: address.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Network error. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const method = depositMethods.find((m) => m.id === methodId)!;
   const balance = balanceCents;
 
@@ -81,6 +115,28 @@ export default function WithdrawView({
   }
 
   const canSubmit = cents > 0 && !error && address.trim().length > 0;
+
+  if (submitted) {
+    return (
+      <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center'>
+        <div className='mx-auto grid size-14 place-items-center rounded-full bg-up/12'>
+          <Check size={28} className='text-up' />
+        </div>
+        <h2 className='mt-4 text-lg font-semibold'>Withdrawal requested</h2>
+        <p className='mx-auto mt-1.5 max-w-sm text-sm text-muted'>
+          Your withdrawal is pending review. The amount has been deducted from
+          your balance and will be released once approved. If it is rejected, it
+          returns to your balance.
+        </p>
+        <Link
+          href='/dashboard/transactions'
+          className='mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        >
+          View my transactions
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className='grid gap-3.5 lg:grid-cols-[1fr_340px]'>
@@ -214,11 +270,18 @@ export default function WithdrawView({
 
         <button
           type='button'
-          disabled={!canSubmit}
+          onClick={handleSubmit}
+          disabled={!canSubmit || submitting}
           className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
         >
-          Request withdrawal
+          {submitting ? 'Submitting...' : 'Request withdrawal'}
         </button>
+
+        {submitError && (
+          <p className='mt-3 text-center text-[13px] text-down'>
+            {submitError}
+          </p>
+        )}
       </aside>
     </div>
   );

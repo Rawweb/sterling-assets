@@ -32,6 +32,7 @@ model User {
   verificationToken   VerificationToken[]
   ledger              Ledger[]
   deposits            Deposit[]
+  withdrawals         Withdrawal[]
 }
 
 model Session {
@@ -65,6 +66,7 @@ model VerificationToken {
 enum LedgerType {
   DEPOSIT
   WITHDRAWAL
+  WITHDRAWAL_REVERSAL
   PROFIT
   INVESTMENT
   BONUS
@@ -137,4 +139,27 @@ model AuditLog {
 
   @@index([adminId])
   @@index([targetId])
+}
+
+// withdrawal
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Withdrawal {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount     Int
+  coin       String
+  address    String
+  status     WithdrawalStatus @default(PENDING)
+  reviewedBy String?
+  createdAt  DateTime         @default(now())
+  reviewedAt DateTime?
+
+  @@index([userId])
+  @@index([status])
 }

@@ -13,6 +13,7 @@ import {
   type TxStatus,
 } from '@/lib/dashboard-data';
 import type { UserDeposit } from '@/lib/deposits';
+import type { UserWithdrawal } from '@/lib/withdrawals';
 
 const TABS = ['Deposit', 'Withdrawal', 'Others'] as const;
 type Tab = (typeof TABS)[number];
@@ -28,6 +29,20 @@ const DEPOSIT_TONE = {
   PENDING: 'pending',
   REJECTED: 'danger',
 } as const;
+
+const WITHDRAWAL_TONE = {
+  APPROVED: 'success',
+  PENDING: 'pending',
+  REJECTED: 'danger',
+} as const;
+
+function WithdrawalBadge({
+  status,
+}: {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}) {
+  return <Badge tone={WITHDRAWAL_TONE[status]}>{status.toLowerCase()}</Badge>;
+}
 
 function DepositBadge({
   status,
@@ -51,7 +66,6 @@ const depositCols: Column[] = [
 const withdrawalCols: Column[] = [
   { key: 'date', label: 'Date created' },
   { key: 'amount', label: 'Amount requested', align: 'right' },
-  { key: 'total', label: 'Amount + charges', align: 'right' },
   { key: 'coin', label: 'Receiving mode' },
   { key: 'status', label: 'Status' },
 ];
@@ -63,7 +77,13 @@ const otherCols: Column[] = [
   { key: 'note', label: 'Plan / Narration' },
 ];
 
-export default function TransactionsView({ deposits }: { deposits: UserDeposit[] }) {
+export default function TransactionsView({
+  deposits,
+  withdrawals,
+}: {
+  deposits: UserDeposit[];
+  withdrawals: UserWithdrawal[];
+}) {
   const [tab, setTab] = useState<Tab>('Deposit');
 
   return (
@@ -95,29 +115,25 @@ export default function TransactionsView({ deposits }: { deposits: UserDeposit[]
       )}
 
       {tab === 'Withdrawal' && (
-        <DataTable<WithdrawalRow>
+        <DataTable<UserWithdrawal>
           columns={withdrawalCols}
           rows={withdrawals}
           getId={(r) => r.id}
-          searchIn={(r) => `${r.coin} ${r.status} ${r.date}`}
+          searchIn={(r) => `${r.coin} ${r.status}`}
           emptyMessage='No withdrawals yet.'
           renderCell={(r, key) => {
             if (key === 'date')
-              return <span className='text-muted'>{formatDate(r.date)}</span>;
+              return (
+                <span className='text-muted'>{formatDate(r.createdAt)}</span>
+              );
             if (key === 'amount')
               return (
                 <span className='font-mono font-semibold'>
-                  {formatCents(r.amountCents)}
-                </span>
-              );
-            if (key === 'total')
-              return (
-                <span className='font-mono text-muted'>
-                  {formatCents(r.amountCents + r.feeCents)}
+                  {formatCents(r.amount)}
                 </span>
               );
             if (key === 'coin') return r.coin;
-            return <StatusBadge status={r.status} />;
+            return <WithdrawalBadge status={r.status} />;
           }}
         />
       )}
