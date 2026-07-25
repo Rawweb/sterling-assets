@@ -117,3 +117,24 @@ model WalletAddress {
   minCents  Int                 // minimum deposit for this coin
   updatedAt DateTime @updatedAt
 }
+
+// admin deposit
+enum AuditAction {
+  DEPOSIT_APPROVED
+  DEPOSIT_REJECTED
+  WITHDRAWAL_APPROVED
+  WITHDRAWAL_REJECTED
+  KYC_APPROVED
+  KYC_REJECTED
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  adminId   String
+  action    AuditAction
+  targetId  String      // the deposit/withdrawal/kyc id acted on
+  createdAt DateTime    @default(now())
+
+  @@index([adminId])
+  @@index([targetId])
+}

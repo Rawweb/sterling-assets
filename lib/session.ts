@@ -28,6 +28,7 @@ export async function createSession(userId: string, remember = false) {
   });
 }
 
+// get user
 export async function getCurrentUser() {
   const jar = await cookies();
   const token = jar.get(COOKIE_NAME)?.value;
@@ -59,6 +60,14 @@ export async function getCurrentUser() {
   }
 
   return session.user;
+}
+
+// get admin
+export async function getAdminUser() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  if (user.role !== 'ADMIN') return null;
+  return user;
 }
 
 export async function destroySession() {
