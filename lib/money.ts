@@ -9,7 +9,7 @@ export function formatSignedCents(cents: number) {
   return (cents < 0 ? '-' : '+') + formatCents(Math.abs(cents));
 }
 
-export function formatDate(iso: string) {
+export function formatDate(iso: string | Date) {
   return new Date(iso).toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'short',

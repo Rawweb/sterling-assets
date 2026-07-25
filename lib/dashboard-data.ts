@@ -544,7 +544,7 @@ export const depositMethods: DepositMethod[] = [
   },
   {
     id: 'usdt',
-    coin: 'USDT',
+    coin: 'USDT (TRC20)',
     network: 'TRC20',
     address: 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxbxa1',
     minCents: 2000,

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check } from 'lucide-react';
 import DetailRow from '@/components/ui/DetailRow';
 import CopyField from '@/components/ui/CopyField';
 import { formatCents } from '@/lib/money';
 import { depositMethods } from '@/lib/dashboard-data';
 import { QRCodeSVG } from 'qrcode.react';
 import FileDrop from '@/components/ui/FileDrop';
+import Link from 'next/link';
 
 export default function DepositView() {
   const [methodId, setMethodId] = useState(depositMethods[0].id);
@@ -23,6 +24,62 @@ export default function DepositView() {
       : null;
 
   const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  async function handleSubmit() {
+    if (!file) return; // safety; button is disabled without it anyway
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch('/api/deposits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: cents,
+          coin: method.coin,
+          proofUrl: 'https://placeholder.test/proof.jpg', // real R2 upload later
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Network error. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center'>
+        <div className='mx-auto grid size-14 place-items-center rounded-full bg-up/12'>
+          <Check size={28} className='text-up' />
+        </div>
+        <h2 className='mt-4 text-lg font-semibold'>Deposit submitted</h2>
+        <p className='mx-auto mt-1.5 max-w-sm text-sm text-muted'>
+          We have received your deposit and it is awaiting review. You will be
+          notified once it is approved.
+        </p>
+        <Link
+          href='/dashboard/transactions'
+          className='mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        >
+          View my transactions
+        </Link>
+      </div>
+    );
+  }
 
   if (confirmed) {
     return (
@@ -87,10 +144,17 @@ export default function DepositView() {
 
             <button
               type='button'
-              className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+              onClick={handleSubmit}
+              disabled={!file || submitting}
+              className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
             >
-              I have sent the payment
+              {submitting ? 'Submitting...' : 'I have sent the payment'}
             </button>
+            {submitError && (
+              <p className='mt-3 text-center text-[13px] text-down'>
+                {submitError}
+              </p>
+            )}
           </aside>
         </div>
       </>

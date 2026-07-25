@@ -31,6 +31,7 @@ model User {
   sessions            Session[]
   verificationToken   VerificationToken[]
   ledger              Ledger[]
+  deposits            Deposit[]
 }
 
 model Session {
@@ -82,4 +83,37 @@ model Ledger {
 
   @@index([userId])
   @@index([userId, type])
+}
+
+// deposits
+enum DepositStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Deposit {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount     Int           // integer cents
+  coin       String        // "Bitcoin", "USDT (TRC20)", etc.
+  proofUrl   String        // R2 URL of the payment screenshot
+  status     DepositStatus @default(PENDING)
+  reviewedBy String?       // admin user id, set on approve/reject
+  createdAt  DateTime      @default(now())
+  reviewedAt DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+// wallet addresses
+model WalletAddress {
+  id        String   @id @default(cuid())
+  coin      String   @unique   // "Bitcoin", "Ethereum", "USDT (TRC20)"
+  network   String              // "BTC", "ERC20", "TRC20"
+  address   String
+  minCents  Int                 // minimum deposit for this coin
+  updatedAt DateTime @updatedAt
 }
