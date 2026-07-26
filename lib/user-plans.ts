@@ -7,21 +7,6 @@ export async function getUserPlans(userId: string) {
     orderBy: { startedAt: 'desc' },
   });
 
-  // earnings per plan = sum of PROFIT ledger rows referencing that plan
-  const profits = await prisma.ledger.groupBy({
-    by: ['referenceId'],
-    where: {
-      userId,
-      type: 'PROFIT',
-      referenceId: { in: plans.map((p) => p.id) },
-    },
-    _sum: { amount: true },
-  });
-
-  const earnedByPlan = new Map(
-    profits.map((row) => [row.referenceId, row._sum.amount ?? 0]),
-  );
-
   return plans.map((p) => ({
     id: p.id,
     planName: p.planName,
@@ -30,7 +15,7 @@ export async function getUserPlans(userId: string) {
     daysPaid: p.daysPaid,
     status: p.status,
     startedAt: p.startedAt,
-    earnedCents: earnedByPlan.get(p.id) ?? 0,
+    earnedCents: p.accruedProfitCents,
   }));
 }
 

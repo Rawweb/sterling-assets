@@ -70,6 +70,7 @@ enum LedgerType {
   WITHDRAWAL_REVERSAL
   PROFIT
   INVESTMENT
+  PRINCIPAL_RETURN
   BONUS
   REFERRAL_BONUS
   ADJUSTMENT
@@ -186,18 +187,20 @@ enum UserPlanStatus {
 }
 
 model UserPlan {
-  id            String         @id @default(cuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId        String
-  planName      String         // snapshot of the name at purchase time
-  investedCents Int            // the principal
-  dailyRatePct  Float          // snapshot of the rate at purchase time
-  durationDays  Int            // snapshot of the term
-  daysPaid      Int            @default(0)   // how many daily profits credited so far
-  status        UserPlanStatus @default(ACTIVE)
-  startedAt     DateTime       @default(now())
-  completedAt   DateTime?
+  id                  String       @id @default(cuid())
+  userId              String
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId              String
+  planName            String         // snapshot of the name at purchase time
+  investedCents       Int            // the principal
+  dailyRatePct        Float          // snapshot of the rate at purchase time
+  accruedProfitCents  Int             @default(0)
+  durationDays        Int            // snapshot of the term
+  daysPaid            Int             @default(0)   // how many daily profits credited so far
+  lastPaidAt          DateTime?
+  status              UserPlanStatus @default(ACTIVE)
+  startedAt           DateTime       @default(now())
+  completedAt         DateTime?
 
   @@index([userId])
   @@index([status])

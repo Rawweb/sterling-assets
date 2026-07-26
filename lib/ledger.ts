@@ -27,9 +27,18 @@ export async function getSummary(userId: string) {
     _sum: { amount: true },
   });
 
+  // profit still accruing on active plans (not yet released to the ledger)
+  const activeAccrued = await prisma.userPlan.aggregate({
+    where: { userId, status: 'ACTIVE' },
+    _sum: { accruedProfitCents: true },
+  });
+
+  const totalProfit =
+    byType('PROFIT') + (activeAccrued._sum.accruedProfitCents ?? 0);
+
   return {
     balanceCents: balance,
-    totalProfitCents: byType('PROFIT'),
+    totalProfitCents: totalProfit,
     bonusCents: byType('BONUS'),
     referralBonusCents: byType('REFERRAL_BONUS'),
     totalDepositCents: byType('DEPOSIT'),

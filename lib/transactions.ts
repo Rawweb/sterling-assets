@@ -8,6 +8,7 @@ const TYPE_LABEL: Record<LedgerType, string> = {
   WITHDRAWAL_REVERSAL: 'Withdrawal reversed',
   PROFIT: 'Profit',
   INVESTMENT: 'Investment',
+  PRINCIPAL_RETURN: 'Principal returned',
   BONUS: 'Bonus',
   REFERRAL_BONUS: 'Referral bonus',
   ADJUSTMENT: 'Adjustment',
