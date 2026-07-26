@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Copy, XCircle } from 'lucide-react';
 
 import FormField from '@/components/ui/FormField';
 import FileDrop from '@/components/ui/FileDrop';
@@ -13,14 +13,15 @@ const inputClass =
 export default function KycView({
   status,
 }: {
-  status: 'none' | 'pending' | 'approved' | 'rejected';
+  status: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
 }) {
   const [docType, setDocType] = useState<DocType>('national_id');
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-  if (status === 'approved') {
+  if (status === 'APPROVED') {
     return (
       <Result
         icon={<CheckCircle2 size={38} className='text-up' />}
@@ -30,7 +31,7 @@ export default function KycView({
     );
   }
 
-  if (status === 'pending') {
+  if (status === 'PENDING') {
     return (
       <Result
         icon={<Clock size={38} className='text-primary' />}
@@ -40,13 +41,37 @@ export default function KycView({
     );
   }
 
+  // NONE: show intro until they click to begin
+  if (status === 'NONE' && !showForm) {
+    return (
+      <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center flex flex-col items-center'>
+        <div className='grid size-16 place-items-center rounded-full bg-bg'>
+          <Copy size={30} className='text-muted' />
+        </div>
+        <p className='mt-4 max-w-sm text-sm text-muted'>
+          You have not submitted your documents to verify your identity. To use
+          the investment system, please verify your identity.
+        </p>
+        <button
+          type='button'
+          onClick={() => setShowForm(true)}
+          className='mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        >
+          Click here to complete your KYC
+        </button>
+      </div>
+    );
+  }
+
+  // REJECTED, or NONE after clicking begin: show the form
+  // ...the rest of your existing form JSX unchanged...
   function onDocTypeChange(next: DocType) {
     setDocType(next);
     // A type with no back must not carry a stale back file into the payload.
     if (next === 'passport') setBackFile(null);
   }
 
-  const rejected = status === 'rejected';
+  const rejected = status === 'REJECTED';
   const needsBack = docType !== 'passport';
   const canSubmit =
     frontFile !== null && (!needsBack || backFile !== null) && confirmed;
