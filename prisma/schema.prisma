@@ -33,6 +33,7 @@ model User {
   ledger              Ledger[]
   deposits            Deposit[]
   withdrawals         Withdrawal[]
+  userPlans           UserPlan[]
 }
 
 model Session {
@@ -159,6 +160,44 @@ model Withdrawal {
   reviewedBy String?
   createdAt  DateTime         @default(now())
   reviewedAt DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+// invesment plan
+model Plan {
+  id           String   @id @default(cuid())
+  name         String   @unique      // "Asset 1"
+  minCents     Int
+  maxCents     Int?                   // null = unlimited
+  dailyRatePct Float                  // 1.2 means 1.2% per day
+  durationDays Int
+  referralPct  Float    @default(5)
+  active       Boolean  @default(true) // admin can retire a plan
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+//  user plan - the active investment the cron pays out
+enum UserPlanStatus {
+  ACTIVE
+  COMPLETED
+}
+
+model UserPlan {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId        String
+  planName      String         // snapshot of the name at purchase time
+  investedCents Int            // the principal
+  dailyRatePct  Float          // snapshot of the rate at purchase time
+  durationDays  Int            // snapshot of the term
+  daysPaid      Int            @default(0)   // how many daily profits credited so far
+  status        UserPlanStatus @default(ACTIVE)
+  startedAt     DateTime       @default(now())
+  completedAt   DateTime?
 
   @@index([userId])
   @@index([status])

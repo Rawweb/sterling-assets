@@ -9,22 +9,19 @@ import {
   Plus,
 } from 'lucide-react';
 
-import {
-  referral,
-  recentTransactions,
-  activePlans,
-} from '@/lib/dashboard-data';
+import { referral } from '@/lib/dashboard-data';
 import { formatCents, formatSignedCents, formatDate } from '@/lib/money';
 import { getViewer } from '@/lib/viewer';
 import { getSummary } from '@/lib/ledger';
 import { redirect } from 'next/navigation';
-
+import { getUserPlans } from '@/lib/user-plans';
 import PageShell from '@/components/dashboard/PageShell';
 import MarketTicker from '@/components/dashboard/MarketTicker';
 import PlanCard from '@/components/dashboard/PlanCard';
 import StatCard from '@/components/ui/StatCard';
 import EmptyState from '@/components/ui/EmptyState';
 import CopyField from '@/components/ui/CopyField';
+import { getRecentTransactions } from '@/lib/transactions';
 
 function Count({ n }: { n: number }) {
   return (
@@ -38,8 +35,10 @@ export default async function DashboardHome() {
   const viewer = await getViewer();
   if (!viewer) redirect('/login');
   const summary = await getSummary(viewer.id);
-  
   const firstName = viewer.fullName.split(' ')[0];
+  const allPlans = await getUserPlans(viewer.id);
+  const activePlans = allPlans.filter((p) => p.status === 'ACTIVE');
+  const recentTransactions = await getRecentTransactions(viewer.id);
 
   const cards = [
     {
@@ -165,8 +164,8 @@ export default async function DashboardHome() {
                 key={t.id}
                 className='grid grid-cols-3 items-center gap-3 border-t border-line px-4 py-3.5 text-sm'
               >
-                <span className='text-muted'>{formatDate(t.date)}</span>
-                <span className='font-medium'>{t.type}</span>
+                <span className='text-muted'>{formatDate(t.createdAt)}</span>
+                <span className='font-medium'>{t.label}</span>
                 <span
                   className={`text-right font-mono font-semibold ${t.amountCents < 0 ? 'text-down' : 'text-up'}`}
                 >

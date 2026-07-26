@@ -9,25 +9,25 @@ import Stat from '@/components/ui/Stat';
 import PlanCard from '@/components/dashboard/PlanCard';
 import EmptyState from '@/components/ui/EmptyState';
 import { formatCents } from '@/lib/money';
-import { userPlans } from '@/lib/dashboard-data';
+import type { UserPlanView } from '@/lib/user-plans';
 
-const TABS = ['Active', 'Expired', 'All'] as const;
+const TABS = ['Active', 'Completed', 'All'] as const;
 type Tab = (typeof TABS)[number];
 
-export default function MyPlansView() {
+export default function MyPlansView({ plans }: { plans: UserPlanView[] }) {
   const [tab, setTab] = useState<Tab>('Active');
 
-  const filtered = userPlans.filter((p) =>
+  const filtered = plans.filter((p) =>
     tab === 'All'
       ? true
       : tab === 'Active'
-        ? p.status === 'active'
-        : p.status === 'expired',
+        ? p.status === 'ACTIVE'
+        : p.status === 'COMPLETED',
   );
 
-  const invested = userPlans.reduce((s, p) => s + p.investedCents, 0);
-  const earned = userPlans.reduce((s, p) => s + p.earnedCents, 0);
-  const activeCount = userPlans.filter((p) => p.status === 'active').length;
+  const invested = plans.reduce((s, p) => s + p.investedCents, 0);
+  const earned = plans.reduce((s, p) => s + p.earnedCents, 0);
+  const activeCount = plans.filter((p) => p.status === 'ACTIVE').length;
 
   return (
     <>

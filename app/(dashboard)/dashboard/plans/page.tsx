@@ -1,17 +1,18 @@
-import PageShell from '@/components/dashboard/PageShell';
-import InvestView from '@/components/dashboard/InvestView';
-import { getViewer } from '@/lib/viewer';
-import { getSummary } from '@/lib/ledger';
 import { redirect } from 'next/navigation';
+import PageShell from '@/components/dashboard/PageShell';
+import MyPlansView from '@/components/dashboard/MyPlansView';
+import { getViewer } from '@/lib/viewer';
+import { getUserPlans } from '@/lib/user-plans';
 
-export default async function PlansPage() {
+export default async function MyPlansPage() {
   const viewer = await getViewer();
   if (!viewer) redirect('/login');
-  const summary = await getSummary(viewer.id);
+
+  const plans = await getUserPlans(viewer.id);
 
   return (
-    <PageShell title='Start an investment'>
-      <InvestView balanceCents={summary.balanceCents} />
+    <PageShell title='My investment plans'>
+      <MyPlansView plans={plans} />
     </PageShell>
   );
 }

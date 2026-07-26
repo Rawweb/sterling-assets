@@ -1,16 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Wallet } from 'lucide-react';
-
+import { ChevronDown, Wallet, Check } from 'lucide-react';
 import PlanTierCard from './PlanTierCard';
 import { formatCents } from '@/lib/money';
-import { plans } from '@/lib/dashboard-data';
 import DetailRow from '@/components/ui/DetailRow';
+import type { Plan } from '@/lib/plans';
+import Link from 'next/link';
 
-export default function InvestView({ balanceCents }: { balanceCents: number }) {
+export default function InvestView({
+  balanceCents,
+  plans,
+}: {
+  balanceCents: number;
+  plans: Plan[];
+}) {
+  if (plans.length === 0) {
+    return (
+      <div className='rounded-[14px] border border-line px-5 py-10 text-center text-sm text-muted'>
+        No investment plans are available right now.
+      </div>
+    );
+  }
   const [planId, setPlanId] = useState(plans[0].id);
   const [amount, setAmount] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const plan = plans.find((p) => p.id === planId)!;
   const balance = balanceCents;
@@ -31,6 +47,55 @@ export default function InvestView({ balanceCents }: { balanceCents: number }) {
   }
 
   const canSubmit = cents > 0 && error === null;
+
+  async function handleInvest() {
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch('/api/invest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: plan.id, amount: cents }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Network error. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center'>
+        <div className='mx-auto grid size-14 place-items-center rounded-full bg-up/12'>
+          <Check size={28} className='text-up' />
+        </div>
+        <h2 className='mt-4 text-lg font-semibold'>Investment started</h2>
+        <p className='mx-auto mt-1.5 max-w-sm text-sm text-muted'>
+          Your investment is now active. The amount has moved from your balance
+          into the plan, and it will earn profit every day.
+        </p>
+        <Link
+          href='/dashboard/my-plans'
+          className='mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        >
+          View my plans
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -74,9 +139,14 @@ export default function InvestView({ balanceCents }: { balanceCents: number }) {
 
       <div className='grid gap-3.5 lg:grid-cols-[1fr_340px]'>
         <div className='rounded-[14px] border border-line p-5'>
-          <label htmlFor='amount' className='mb-1.5 block text-sm font-medium'>
-            Amount to invest
-          </label>
+          <div className='mb-1.5 flex items-center justify-between'>
+            <label htmlFor='amount' className='text-sm font-medium'>
+              Amount to invest
+            </label>
+            <span className='text-[13px] text-muted'>
+              Available: {formatCents(balanceCents)}
+            </span>
+          </div>
 
           <div
             className={`flex items-center rounded-xl border px-3.5 ${
@@ -145,11 +215,18 @@ export default function InvestView({ balanceCents }: { balanceCents: number }) {
 
           <button
             type='button'
-            disabled={!canSubmit}
+            onClick={handleInvest}
+            disabled={!canSubmit || submitting}
             className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
           >
-            Confirm and invest
+            {submitting ? 'Investing...' : 'Confirm and invest'}
           </button>
+
+          {submitError && (
+            <p className='mt-3 text-center text-[13px] text-down'>
+              {submitError}
+            </p>
+          )}
         </aside>
       </div>
     </>

@@ -1,22 +1,22 @@
-import type { UserPlan } from '@/lib/dashboard-data';
+import type { UserPlanView } from '@/lib/user-plans';
 import { formatCents, formatDate } from '@/lib/money';
 import Badge from '@/components/ui/Badge';
 
-export default function PlanCard({ plan }: { plan: UserPlan }) {
+export default function PlanCard({ plan }: { plan: UserPlanView }) {
   const pct = Math.round((plan.daysPaid / plan.durationDays) * 100);
-  const isActive = plan.status === 'active';
+  const isActive = plan.status === 'ACTIVE';
 
   return (
     <div className='rounded-[14px] border border-line p-[18px]'>
       <div className='flex items-start justify-between gap-3'>
         <div>
-          <p className='font-semibold'>{plan.name}</p>
+          <p className='font-semibold'>{plan.planName}</p>
           <p className='mt-0.5 font-mono text-[13px] text-muted'>
             {formatCents(plan.investedCents)} invested
           </p>
         </div>
         <Badge tone={isActive ? 'active' : 'neutral'}>
-          {isActive ? 'Active' : 'Expired'}
+          {isActive ? 'Active' : 'Completed'}
         </Badge>
       </div>
 
@@ -43,7 +43,7 @@ export default function PlanCard({ plan }: { plan: UserPlan }) {
         <div className='flex items-center justify-between'>
           <span className='text-muted'>Started</span>
           <span className='font-mono text-[13px] text-muted'>
-            {formatDate(plan.startDate)}
+            {formatDate(plan.startedAt)}
           </span>
         </div>
         <div className='flex items-center justify-between'>

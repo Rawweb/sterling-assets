@@ -5,15 +5,10 @@ import Tabs from '@/components/ui/Tabs';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Badge from '@/components/ui/Badge';
 import { formatCents, formatSignedCents, formatDate } from '@/lib/money';
-import {
-  withdrawals,
-  otherTransactions,
-  type WithdrawalRow,
-  type OtherRow,
-  type TxStatus,
-} from '@/lib/dashboard-data';
+import { type TxStatus } from '@/lib/dashboard-data';
 import type { UserDeposit } from '@/lib/deposits';
 import type { UserWithdrawal } from '@/lib/withdrawals';
+import type { OtherTransaction } from '@/lib/transactions';
 
 const TABS = ['Deposit', 'Withdrawal', 'Others'] as const;
 type Tab = (typeof TABS)[number];
@@ -72,17 +67,18 @@ const withdrawalCols: Column[] = [
 
 const otherCols: Column[] = [
   { key: 'date', label: 'Date created' },
-  { key: 'amount', label: 'Amount', align: 'right' },
   { key: 'type', label: 'Type' },
-  { key: 'note', label: 'Plan / Narration' },
+  { key: 'amount', label: 'Amount' },
 ];
 
 export default function TransactionsView({
   deposits,
   withdrawals,
+  others,
 }: {
   deposits: UserDeposit[];
   withdrawals: UserWithdrawal[];
+  others: OtherTransaction[];
 }) {
   const [tab, setTab] = useState<Tab>('Deposit');
 
@@ -139,15 +135,19 @@ export default function TransactionsView({
       )}
 
       {tab === 'Others' && (
-        <DataTable<OtherRow>
+        <DataTable<OtherTransaction>
           columns={otherCols}
-          rows={otherTransactions}
+          rows={others}
           getId={(r) => r.id}
-          searchIn={(r) => `${r.type} ${r.note} ${r.date}`}
-          emptyMessage='Nothing to show yet.'
+          searchIn={(r) => r.label}
+          emptyMessage='Nothing here yet.'
           renderCell={(r, key) => {
             if (key === 'date')
-              return <span className='text-muted'>{formatDate(r.date)}</span>;
+              return (
+                <span className='text-muted'>{formatDate(r.createdAt)}</span>
+              );
+            if (key === 'type')
+              return <span className='font-medium'>{r.label}</span>;
             if (key === 'amount')
               return (
                 <span
@@ -156,9 +156,7 @@ export default function TransactionsView({
                   {formatSignedCents(r.amountCents)}
                 </span>
               );
-            if (key === 'type')
-              return <span className='font-medium'>{r.type}</span>;
-            return <span className='text-muted'>{r.note}</span>;
+            return null;
           }}
         />
       )}
