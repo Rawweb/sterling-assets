@@ -88,6 +88,73 @@ export async function POST(req: Request) {
         },
       });
 
+      // referral bonus: first investment only, credit the referrer 5%
+      const investor = await tx.user.findUnique({
+        where: { id: user.id },
+        select: { referredBy: true, referralBonusPaid: true },
+      });
+
+      if (investor?.referredBy && !investor.referralBonusPaid) {
+        // confirm the referrer still exists
+        const referrer = await tx.user.findUnique({
+          where: { id: investor.referredBy },
+          select: { id: true },
+        });
+
+        if (referrer) {
+          const bonus = Math.round(amount * 0.05); // 5% of the investment
+
+          await tx.ledger.create({
+            data: {
+              userId: referrer.id,
+              amount: bonus,
+              type: 'REFERRAL_BONUS',
+              referenceId: userPlan.id,
+            },
+          });
+
+          // mark paid so it never fires again for this user
+          await tx.user.update({
+            where: { id: user.id },
+            data: { referralBonusPaid: true },
+          });
+
+          
+          // referral bonus: first investment only, credit the referrer 5%
+          const investor = await tx.user.findUnique({
+            where: { id: user.id },
+            select: { referredBy: true, referralBonusPaid: true },
+          });
+
+          if (investor?.referredBy && !investor.referralBonusPaid) {
+            // confirm the referrer still exists
+            const referrer = await tx.user.findUnique({
+              where: { id: investor.referredBy },
+              select: { id: true },
+            });
+
+            if (referrer) {
+              const bonus = Math.round(amount * 0.05); // 5% of the investment
+
+              await tx.ledger.create({
+                data: {
+                  userId: referrer.id,
+                  amount: bonus,
+                  type: 'REFERRAL_BONUS',
+                  referenceId: userPlan.id,
+                },
+              });
+
+              // mark paid so it never fires again for this user
+              await tx.user.update({
+                where: { id: user.id },
+                data: { referralBonusPaid: true },
+              });
+            }
+          }
+        }
+      }
+
       return {
         ok: true as const,
         userPlan: {

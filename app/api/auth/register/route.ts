@@ -6,6 +6,7 @@ import { registerSchema } from '@/lib/validation';
 import { createVerificationToken } from '@/lib/token';
 import { sendVerificationEmail } from '@/lib/mail';
 import { setPendingEmail } from '@/lib/session';
+import { generateReferralCode } from '@/lib/referral';
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { fullName, email, phone, password, country } = result.data;
+  const { fullName, email, phone, password, country, referral } = result.data;
 
   try {
     const existing = await prisma.user.findUnique({
@@ -43,6 +44,19 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // this user's own unique code
+    const referralCode = await generateReferralCode();
+
+    // resolve the entered referral code to a referrer id, if valid
+    let referredBy: string | null = null;
+    if (referral) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: referral },
+        select: { id: true },
+      });
+      referredBy = referrer?.id ?? null;
+    }
+
     const user = await prisma.user.create({
       data: {
         fullName,
@@ -50,6 +64,8 @@ export async function POST(req: NextRequest) {
         phone,
         country,
         passwordHash,
+        referralCode,
+        referredBy,
       },
       select: { id: true, email: true, fullName: true },
     });

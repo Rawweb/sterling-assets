@@ -16,24 +16,27 @@ enum KycStatus {
 
 // user
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  passwordHash  String
-  fullName      String
-  phone         String?
-  country       String?
-  emailVerified DateTime?
-  role          Role       @default(USER)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  kycStatus     KycStatus  @default(NONE )
+  id                  String     @id @default(cuid())
+  email               String     @unique
+  passwordHash        String
+  fullName            String
+  phone               String?
+  country             String?
+  emailVerified       DateTime?
+  referralCode        String    @unique
+  referredBy          String?
+  referralBonusPaid   Boolean   @default(false)
+  role                Role      @default(USER)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  kycStatus           KycStatus @default(NONE )
 
-  sessions            Session[]
-  verificationToken   VerificationToken[]
-  ledger              Ledger[]
-  deposits            Deposit[]
-  withdrawals         Withdrawal[]
-  userPlans           UserPlan[]
+  sessions             Session[]
+  verificationToken    VerificationToken[]
+  ledger               Ledger[]
+  deposits             Deposit[]
+  withdrawals          Withdrawal[]
+  userPlans            UserPlan[]
 }
 
 model Session {

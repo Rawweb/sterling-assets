@@ -9,7 +9,7 @@ import {
   Plus,
 } from 'lucide-react';
 
-import { referral } from '@/lib/dashboard-data';
+import { getReferralData } from '@/lib/referrals';
 import { formatCents, formatSignedCents, formatDate } from '@/lib/money';
 import { getViewer } from '@/lib/viewer';
 import { getSummary } from '@/lib/ledger';
@@ -39,6 +39,7 @@ export default async function DashboardHome() {
   const allPlans = await getUserPlans(viewer.id);
   const activePlans = allPlans.filter((p) => p.status === 'ACTIVE');
   const recentTransactions = await getRecentTransactions(viewer.id);
+  const referralData = await getReferralData(viewer.id);
 
   const cards = [
     {
@@ -183,7 +184,7 @@ export default async function DashboardHome() {
           <p className='mb-4 mt-1 text-sm text-muted'>
             Share your link. You earn when they invest.
           </p>
-          <CopyField value={referral.link} />
+          <CopyField value={referralData.link} />
         </div>
       </section>
     </PageShell>

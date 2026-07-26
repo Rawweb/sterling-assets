@@ -5,31 +5,23 @@ import Badge from '@/components/ui/Badge';
 import CopyField from '@/components/ui/CopyField';
 import Stat from '@/components/ui/Stat';
 import { formatCents, formatDate } from '@/lib/money';
-import {
-  referral,
-  referrals,
-  referralEarnedCents,
-  type ReferralRow,
-} from '@/lib/dashboard-data';
+import type { ReferralData, ReferredPerson } from '@/lib/referrals';
 
 const columns: Column[] = [
   { key: 'name', label: 'Name' },
   { key: 'joined', label: 'Joined' },
   { key: 'status', label: 'Status' },
-  { key: 'bonus', label: 'Bonus earned', align: 'right' },
 ];
 
-export default function ReferralsView() {
-  const invested = referrals.filter((r) => r.hasInvested).length;
-
+export default function ReferralsView({ data }: { data: ReferralData }) {
   return (
     <>
       <div className='mb-5 grid gap-3.5 sm:grid-cols-3'>
-        <Stat label='Total referrals' value={String(referrals.length)} />
-        <Stat label='Have invested' value={String(invested)} />
+        <Stat label='Total referrals' value={String(data.totalReferrals)} />
+        <Stat label='Have invested' value={String(data.investedCount)} />
         <Stat
           label='Bonus earned'
-          value={formatCents(referralEarnedCents)}
+          value={formatCents(data.totalBonusCents)}
           tone='up'
         />
       </div>
@@ -41,43 +33,33 @@ export default function ReferralsView() {
           automatically.
         </p>
 
-        <CopyField value={referral.link} />
+        <CopyField value={data.link} />
 
         <div className='mt-3.5 flex items-center gap-2.5 text-sm'>
           <span className='text-muted'>Referral code</span>
           <code className='rounded-lg bg-bg px-2.5 py-1 font-mono text-[13px] font-semibold'>
-            {referral.code}
+            {data.code}
           </code>
         </div>
       </div>
 
       <h2 className='mb-3.5 text-base font-semibold'>People you referred</h2>
 
-      <DataTable<ReferralRow>
+      <DataTable<ReferredPerson>
         columns={columns}
-        rows={referrals}
+        rows={data.referrals}
         getId={(r) => r.id}
-        searchIn={(r) => `${r.name} ${r.joinedAt}`}
+        searchIn={(r) => r.name}
         emptyMessage='Nobody has signed up with your link yet.'
         renderCell={(r, key) => {
           if (key === 'name')
             return <span className='font-medium'>{r.name}</span>;
           if (key === 'joined')
             return <span className='text-muted'>{formatDate(r.joinedAt)}</span>;
-          if (key === 'status')
-            return (
-              <Badge tone={r.hasInvested ? 'success' : 'neutral'}>
-                {r.hasInvested ? 'Invested' : 'Signed up'}
-              </Badge>
-            );
           return (
-            <span
-              className={`font-mono font-semibold ${r.bonusCents > 0 ? 'text-up' : 'text-muted'}`}
-            >
-              {r.bonusCents > 0
-                ? `+${formatCents(r.bonusCents)}`
-                : formatCents(0)}
-            </span>
+            <Badge tone={r.hasInvested ? 'success' : 'neutral'}>
+              {r.hasInvested ? 'Invested' : 'Signed up'}
+            </Badge>
           );
         }}
       />
