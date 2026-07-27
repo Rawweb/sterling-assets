@@ -152,15 +152,19 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
 function PasswordTab() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const data = new FormData(form);
     const current = String(data.get('current') ?? '');
     const next = String(data.get('next') ?? '');
     const confirm = String(data.get('confirm') ?? '');
 
     setDone(false);
+    setError(null);
+
     if (!current || !next || !confirm)
       return setError('Fill in all three fields.');
     if (next.length < 8)
@@ -168,8 +172,25 @@ function PasswordTab() {
     if (next !== confirm)
       return setError('New password and confirmation do not match.');
 
-    setError(null);
-    setDone(true);
+    setSaving(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current, next }),
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        setError(resData.error ?? 'Could not change password.');
+        return;
+      }
+      setDone(true);
+      form.reset();
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -194,17 +215,12 @@ function PasswordTab() {
       </div>
 
       {error && <p className='mb-4 text-[13px] text-down'>{error}</p>}
-      {done && (
-        <p className='mb-4 text-[13px] text-up'>
-          Password check passed. (Not saved, static page.)
-        </p>
-      )}
-
       <button
         type='submit'
-        className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        disabled={saving}
+        className='...disabled:opacity-50 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
       >
-        Update password
+        {saving ? 'Updating...' : 'Update password'}
       </button>
     </form>
   );
