@@ -70,6 +70,15 @@ export async function POST(req: NextRequest) {
       select: { id: true, email: true, fullName: true },
     });
 
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        type: 'WELCOME',
+        title: 'Welcome to Sterling Assets Holdings',
+        body: 'Your account has been created. Complete your identity verification to unlock all features.',
+      },
+    });
+
     const token = await createVerificationToken(user.id);
     await setPendingEmail(user.email);
 

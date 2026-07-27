@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
+import { formatCents } from '@/lib/money';
 
 const MIN_WITHDRAWAL_CENTS = 5000;
 
@@ -86,6 +88,20 @@ export async function POST(req: Request) {
           referenceId: withdrawal.id,
         },
       });
+
+      const prefReq = await tx.user.findUnique({
+        where: { id: user.id },
+        select: { notifyWithdrawal: true },
+      });
+      if (prefReq?.notifyWithdrawal) {
+        await createNotification(
+          tx,
+          user.id,
+          'WITHDRAWAL_INITIATED',
+          'Withdrawal initiated',
+          `Your withdrawal of ${formatCents(amount)} has been initiated and will be processed shortly.`,
+        );
+      }
 
       return {
         ok: true as const,

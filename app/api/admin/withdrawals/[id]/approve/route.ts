@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
+import { formatCents } from '@/lib/money';
 
 export async function POST(
   _req: Request,
@@ -45,6 +47,20 @@ export async function POST(
           targetId: withdrawal.id,
         },
       });
+
+      const prefApp = await tx.user.findUnique({
+        where: { id: withdrawal.userId },
+        select: { notifyWithdrawal: true },
+      });
+      if (prefApp?.notifyWithdrawal) {
+        await createNotification(
+          tx,
+          withdrawal.userId,
+          'WITHDRAWAL_APPROVED',
+          'Withdrawal approved',
+          `Your withdrawal of ${formatCents(withdrawal.amount)} has been approved. Please check your wallet address.`,
+        );
+      }
 
       return { ok: true as const };
     });

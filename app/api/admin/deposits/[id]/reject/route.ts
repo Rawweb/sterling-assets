@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
+import { formatCents } from '@/lib/money';
 
 export async function POST(
   _req: Request,
@@ -40,6 +42,14 @@ export async function POST(
           targetId: deposit.id,
         },
       });
+
+      await createNotification(
+        tx,
+        deposit.userId,
+        'DEPOSIT_REJECTED',
+        'Deposit rejected',
+        `Your deposit of ${formatCents(deposit.amount)} could not be approved. Please contact support if you need help.`,
+      );
 
       return { ok: true as const };
     });

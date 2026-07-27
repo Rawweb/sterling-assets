@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
+import { formatCents } from '@/lib/money';
 
 export async function POST(
   _req: Request,
@@ -54,6 +56,21 @@ export async function POST(
           targetId: withdrawal.id,
         },
       });
+
+      
+      const prefRej = await tx.user.findUnique({
+        where: { id: withdrawal.userId },
+        select: { notifyWithdrawal: true },
+      });
+      if (prefRej?.notifyWithdrawal) {
+        await createNotification(
+          tx,
+          withdrawal.userId,
+          'WITHDRAWAL_REJECTED',
+          'Withdrawal rejected',
+          `Your withdrawal of ${formatCents(withdrawal.amount)} was rejected and the amount has been returned to your balance.`,
+        );
+      }
 
       return { ok: true as const };
     });

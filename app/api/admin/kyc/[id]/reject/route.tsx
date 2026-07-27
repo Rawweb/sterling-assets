@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
 
 export async function POST(
   _req: Request,
@@ -49,6 +50,14 @@ export async function POST(
           targetId: submission.id,
         },
       });
+
+      await createNotification(
+        tx,
+        submission.userId,
+        'KYC_REJECTED',
+        'Verification rejected',
+        'Your identity verification was rejected. Please review and submit your documents again.',
+      );
 
       return { ok: true as const };
     });

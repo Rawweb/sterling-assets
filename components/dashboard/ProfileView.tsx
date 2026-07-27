@@ -24,7 +24,7 @@ export default function ProfileView({ viewer }: { viewer: Viewer }) {
 
       {tab === 'Personal' && <PersonalTab viewer={viewer} />}
       {tab === 'Password' && <PasswordTab />}
-      {tab === 'Notifications' && <NotificationsTab />}
+      {tab === 'Notifications' && <NotificationsTab viewer={viewer} />}
     </div>
   );
 }
@@ -226,63 +226,105 @@ function PasswordTab() {
   );
 }
 
-function NotificationsTab() {
+function NotificationsTab({ viewer }: { viewer: Viewer }) {
+  const [notifyWithdrawal, setW] = useState(viewer.notifyWithdrawal);
+  const [notifyProfit, setP] = useState(viewer.notifyProfit);
+  const [notifyPlanExpiry, setE] = useState(viewer.notifyPlanExpiry);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function save() {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notifyWithdrawal,
+          notifyProfit,
+          notifyPlanExpiry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({
+          ok: false,
+          text: data.error ?? 'Could not save preferences.',
+        });
+        return;
+      }
+      setMsg({ ok: true, text: 'Preferences saved.' });
+    } catch {
+      setMsg({ ok: false, text: 'Network error. Please try again.' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className='rounded-[14px] border border-line p-5 sm:p-6'>
       <div className='grid gap-6 sm:grid-cols-2'>
         <YesNo
-          name='notif-otp'
-          label='Send confirmation OTP to my email when withdrawing my funds.'
-          defaultValue='yes'
+          label='Notify me by email when I withdraw funds.'
+          value={notifyWithdrawal}
+          onChange={setW}
         />
         <YesNo
-          name='notif-profit'
-          label='Send me email when i get profit.'
-          defaultValue='yes'
+          label='Notify me when I earn profit.'
+          value={notifyProfit}
+          onChange={setP}
         />
         <YesNo
-          name='notif-expire'
-          label='Send me email when my investment plan expires.'
-          defaultValue='yes'
+          label='Notify me when my investment plan completes.'
+          value={notifyPlanExpiry}
+          onChange={setE}
         />
       </div>
 
       <button
         type='button'
-        className='mt-6 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        onClick={save}
+        disabled={saving}
+        className='mt-6 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:opacity-50'
       >
-        Save preferences
+        {saving ? 'Saving...' : 'Save preferences'}
       </button>
+
+      {msg && (
+        <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
+          {msg.text}
+        </p>
+      )}
     </div>
   );
 }
 
 function YesNo({
-  name,
   label,
-  defaultValue,
+  value,
+  onChange,
 }: {
-  name: string;
   label: string;
-  defaultValue: 'yes' | 'no';
+  value: boolean;
+  onChange: (v: boolean) => void;
 }) {
   return (
     <fieldset>
       <legend className='mb-2 text-sm text-muted'>{label}</legend>
       <div className='flex gap-5'>
-        {(['yes', 'no'] as const).map((v) => (
+        {([true, false] as const).map((v) => (
           <label
-            key={v}
+            key={String(v)}
             className='flex cursor-pointer items-center gap-2 text-sm'
           >
             <input
               type='radio'
-              name={name}
-              value={v}
-              defaultChecked={v === defaultValue}
+              checked={value === v}
+              onChange={() => onChange(v)}
               className='size-4 accent-primary'
             />
-            <span className='capitalize'>{v}</span>
+            <span>{v ? 'Yes' : 'No'}</span>
           </label>
         ))}
       </div>

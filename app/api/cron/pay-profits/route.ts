@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { createNotification } from '@/lib/notify';
+import { formatCents } from '@/lib/money';
 
 // pays daily profit to every active plan that hasn't been paid today,
 // and returns principal + completes plans that reach their term.
@@ -73,6 +75,20 @@ export async function POST(req: Request) {
              completedAt: now,
            },
          });
+
+         const prefPlan = await tx.user.findUnique({
+           where: { id: plan.userId },
+           select: { notifyPlanExpiry: true },
+         });
+         if (prefPlan?.notifyPlanExpiry) {
+           await createNotification(
+             tx,
+             plan.userId,
+             'PLAN_COMPLETED',
+             'Investment plan completed',
+             `Your ${plan.planName} plan has completed. Profit and principal have been credited to your balance.`,
+           );
+         }
          completed++;
        } else {
          // still running: accrue profit on the plan only, NOTHING to the ledger
@@ -84,8 +100,21 @@ export async function POST(req: Request) {
              lastPaidAt: now,
            },
          });
-       }
 
+         const prefProfit = await tx.user.findUnique({
+           where: { id: plan.userId },
+           select: { notifyProfit: true },
+         });
+         if (prefProfit?.notifyProfit) {
+           await createNotification(
+             tx,
+             plan.userId,
+             'PROFIT_EARNED',
+             'Profit earned',
+             `You earned ${formatCents(dailyProfit)} today on your ${plan.planName} plan.`,
+           );
+         }
+       }
        paid++;
      });
     } catch {

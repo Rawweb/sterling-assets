@@ -11,6 +11,9 @@ export type Viewer = {
   role: 'USER' | 'ADMIN';
   avatarUrl: string | null;
   emailVerified: boolean;
+  notifyWithdrawal: boolean;
+  notifyProfit: boolean;
+  notifyPlanExpiry: boolean;
 };
 
 export async function getViewer(): Promise<Viewer | null> {
@@ -28,5 +31,8 @@ export async function getViewer(): Promise<Viewer | null> {
     role: user.role,
     avatarUrl: user.avatarUrl,
     emailVerified: !!user.emailVerified,
+    notifyWithdrawal: user.notifyWithdrawal,
+    notifyProfit: user.notifyProfit,
+    notifyPlanExpiry: user.notifyPlanExpiry,
   };
 }
