@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
-import { createNotification } from '@/lib/notify';
+import { createNotification, emailNotification } from '@/lib/notify';
 import { formatCents } from '@/lib/money';
 
 export async function POST(
@@ -66,7 +66,14 @@ export async function POST(
         `Your deposit of ${formatCents(deposit.amount)} has been approved and credited to your balance.`,
       );
 
-      return { ok: true as const };
+      return {
+        ok: true as const,
+        email: {
+          userId: deposit.userId,
+          title: 'Deposit approved',
+          body: `Your deposit of ${formatCents(deposit.amount)} has been approved and credited to your balance.`,
+        },
+      };
     });
 
     if ('error' in result) {
@@ -75,6 +82,12 @@ export async function POST(
         { status: result.status },
       );
     }
+
+    await emailNotification(
+      result.email.userId,
+      result.email.title,
+      result.email.body,
+    );
 
     return NextResponse.json({ approved: true }, { status: 200 });
   } catch {

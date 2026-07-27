@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
-import { createNotification } from '@/lib/notify';
+import { createNotification, emailNotification } from '@/lib/notify';
 import { formatCents } from '@/lib/money';
 
 export async function POST(
@@ -48,27 +48,43 @@ export async function POST(
         },
       });
 
+      // check preference once, reused for both in-app and email
       const prefApp = await tx.user.findUnique({
         where: { id: withdrawal.userId },
         select: { notifyWithdrawal: true },
       });
+
+      let email: { userId: string; title: string; body: string } | null = null;
       if (prefApp?.notifyWithdrawal) {
+        const title = 'Withdrawal approved';
+        const emailBody = `Your withdrawal of ${formatCents(withdrawal.amount)} has been approved. Please check your wallet address.`;
+        // in-app notification (gated by notifyWithdrawal)
         await createNotification(
           tx,
           withdrawal.userId,
           'WITHDRAWAL_APPROVED',
-          'Withdrawal approved',
-          `Your withdrawal of ${formatCents(withdrawal.amount)} has been approved. Please check your wallet address.`,
+          title,
+          emailBody,
         );
+        email = { userId: withdrawal.userId, title, body: emailBody };
       }
 
-      return { ok: true as const };
+      return { ok: true as const, email };
     });
 
     if ('error' in result) {
       return NextResponse.json(
         { error: result.error },
         { status: result.status },
+      );
+    }
+
+    // email notification (after commit, only if preference was on)
+    if (result.email) {
+      await emailNotification(
+        result.email.userId,
+        result.email.title,
+        result.email.body,
       );
     }
 

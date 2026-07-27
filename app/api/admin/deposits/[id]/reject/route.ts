@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
-import { createNotification } from '@/lib/notify';
+import { createNotification, emailNotification } from '@/lib/notify';
 import { formatCents } from '@/lib/money';
 
 export async function POST(
@@ -43,6 +43,7 @@ export async function POST(
         },
       });
 
+      // in-app notification (deposit always notifies)
       await createNotification(
         tx,
         deposit.userId,
@@ -51,7 +52,14 @@ export async function POST(
         `Your deposit of ${formatCents(deposit.amount)} could not be approved. Please contact support if you need help.`,
       );
 
-      return { ok: true as const };
+      return {
+        ok: true as const,
+        email: {
+          userId: deposit.userId,
+          title: 'Deposit rejected',
+          body: `Your deposit of ${formatCents(deposit.amount)} could not be approved. Please contact support if you need help.`,
+        },
+      };
     });
 
     if ('error' in result) {
@@ -60,6 +68,13 @@ export async function POST(
         { status: result.status },
       );
     }
+
+    // email notification (after commit, best-effort)
+    await emailNotification(
+      result.email.userId,
+      result.email.title,
+      result.email.body,
+    );
 
     return NextResponse.json({ rejected: true }, { status: 200 });
   } catch {

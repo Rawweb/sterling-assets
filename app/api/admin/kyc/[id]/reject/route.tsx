@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
-import { createNotification } from '@/lib/notify';
+import { createNotification, emailNotification } from '@/lib/notify';
 
 export async function POST(
   _req: Request,
@@ -51,6 +51,7 @@ export async function POST(
         },
       });
 
+      // in-app notification (KYC always notifies, no preference gate)
       await createNotification(
         tx,
         submission.userId,
@@ -59,7 +60,14 @@ export async function POST(
         'Your identity verification was rejected. Please review and submit your documents again.',
       );
 
-      return { ok: true as const };
+      return {
+        ok: true as const,
+        email: {
+          userId: submission.userId,
+          title: 'Verification rejected',
+          body: 'Your identity verification was rejected. Please review and submit your documents again.',
+        },
+      };
     });
 
     if ('error' in result) {
@@ -68,6 +76,13 @@ export async function POST(
         { status: result.status },
       );
     }
+
+    // email notification (sent after commit, best-effort)
+    await emailNotification(
+      result.email.userId,
+      result.email.title,
+      result.email.body,
+    );
 
     return NextResponse.json({ rejected: true }, { status: 200 });
   } catch {
