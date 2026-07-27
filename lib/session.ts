@@ -45,6 +45,7 @@ export async function getCurrentUser() {
           phone: true,
           country: true,
           role: true,
+          avatarUrl: true,
           emailVerified: true,
           kycStatus: true,
         },

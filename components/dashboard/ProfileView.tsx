@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Camera } from 'lucide-react';
 
 import Tabs from '@/components/ui/Tabs';
@@ -29,7 +30,39 @@ export default function ProfileView({ viewer }: { viewer: Viewer }) {
 }
 
 function PersonalTab({ viewer }: { viewer: Viewer }) {
+  const router = useRouter();
   const initial = viewer.fullName.trim().charAt(0).toUpperCase();
+
+  const [fullName, setFullName] = useState(viewer.fullName);
+  const [phone, setPhone] = useState(viewer.phone);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function save() {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({
+          ok: false,
+          text: data.error ?? 'Could not save your profile.',
+        });
+        return;
+      }
+      setMsg({ ok: true, text: 'Profile updated.' });
+      router.refresh();
+    } catch {
+      setMsg({ ok: false, text: 'Network error. Please try again.' });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className='rounded-[14px] border border-line p-5 sm:p-6'>
@@ -64,7 +97,8 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
           <input
             id='fullName'
             name='fullName'
-            defaultValue={viewer.fullName}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             className={inputClass}
           />
         </FormField>
@@ -82,12 +116,10 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
             name='phone'
             type='tel'
             inputMode='tel'
-            defaultValue={viewer.phone}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             className={inputClass}
           />
-        </FormField>
-        <FormField label='Date of birth' htmlFor='dob'>
-          <input id='dob' name='dob' type='date' className={inputClass} />
         </FormField>
         <FormField label='Country' htmlFor='country'>
           <input
@@ -97,22 +129,22 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
             className={`${inputClass} bg-bg text-muted`}
           />
         </FormField>
-        <FormField label='Address' htmlFor='address'>
-          <input
-            id='address'
-            name='address'
-            placeholder='Full address'
-            className={inputClass}
-          />
-        </FormField>
       </div>
 
       <button
         type='button'
-        className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        onClick={save}
+        disabled={saving}
+        className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50'
       >
-        Update profile
+        {saving ? 'Saving...' : 'Update profile'}
       </button>
+
+      {msg && (
+        <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
+          {msg.text}
+        </p>
+      )}
     </div>
   );
 }

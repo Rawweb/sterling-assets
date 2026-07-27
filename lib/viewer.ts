@@ -9,6 +9,7 @@ export type Viewer = {
   country: string;
   kycStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
   role: 'USER' | 'ADMIN';
+  avatarUrl: string | null;
   emailVerified: boolean;
 };
 
@@ -25,6 +26,7 @@ export async function getViewer(): Promise<Viewer | null> {
     country: user.country ?? '',
     kycStatus: user.kycStatus,
     role: user.role,
+    avatarUrl: user.avatarUrl,
     emailVerified: !!user.emailVerified,
   };
 }
