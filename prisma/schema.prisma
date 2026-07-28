@@ -36,6 +36,7 @@ model User {
   userPlans            UserPlan[]
   kycSubmissions       KycSubmission[]
   notifications        Notification[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 model Session {
@@ -263,4 +264,15 @@ model Notification {
 
   @@index([userId])
   @@index([userId, read])
+}
+
+// password reset
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

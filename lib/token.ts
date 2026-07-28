@@ -1,9 +1,9 @@
-// lib/tokens.ts
 import { randomBytes, createHash } from 'crypto';
 import { prisma } from '@/lib/db';
 import { clearPendingEmail } from '@/lib/session';
 
 const EXPIRY_HOURS = 24;
+export const RESEND_COOLDOWN_SECONDS = 60;
 
 function hashToken(token: string) {
   return createHash('sha256').update(token).digest('hex');
@@ -47,12 +47,10 @@ export async function consumeVerificationToken(
     prisma.verificationToken.delete({ where: { id: record.id } }),
   ]);
 
-  await clearPendingEmail()
+  await clearPendingEmail();
 
   return { ok: true, userId: record.userId };
 }
-
-export const RESEND_COOLDOWN_SECONDS = 60;
 
 export async function getResendCooldown(email: string | null) {
   if (!email) return 0;
@@ -72,4 +70,39 @@ export async function getResendCooldown(email: string | null) {
 
   const elapsed = (Date.now() - last.createdAt.getTime()) / 1000;
   return Math.max(0, Math.ceil(RESEND_COOLDOWN_SECONDS - elapsed));
+}
+
+// password reset
+export async function createPasswordResetToken(
+  userId: string,
+): Promise<string> {
+  const raw = randomBytes(32).toString('base64url');
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await prisma.passwordResetToken.deleteMany({ where: { userId } });
+
+  await prisma.passwordResetToken.create({
+    data: { tokenHash: hashToken(raw), userId, expiresAt },
+  });
+
+  return raw;
+}
+
+export async function consumePasswordResetToken(
+  raw: string,
+): Promise<{ ok: true; userId: string } | { ok: false }> {
+  const hash = hashToken(raw);
+
+  const token = await prisma.passwordResetToken.findUnique({
+    where: { tokenHash: hash },
+  });
+
+  if (!token) return { ok: false };
+
+  // Delete immediately regardless of expiry.
+  await prisma.passwordResetToken.delete({ where: { id: token.id } });
+
+  if (token.expiresAt < new Date()) return { ok: false };
+
+  return { ok: true, userId: token.userId };
 }

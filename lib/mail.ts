@@ -2,6 +2,7 @@
 import { Resend } from 'resend';
 import VerificationEmail from '@/emails/VerificationEmail';
 import NotificationEmail from '@/emails/NotificationEmail';
+import PasswordResetEmail from '@/emails/PasswordResetEmail';
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -56,5 +57,26 @@ export async function sendNotificationEmail(
   if (error) {
     console.error('Notification email failed:', error);
     // do NOT throw — email is best-effort, the action already succeeded
+  }
+}
+
+export async function sendPasswordResetEmail(
+  to: string,
+  fullName: string,
+  resetUrl: string,
+) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n🔗 Password reset link for ${to}:\n${resetUrl}\n`);
+  }
+
+  const { error } = await getResend().emails.send({
+    from: process.env.MAIL_FROM!,
+    to,
+    subject: 'Reset your Sterling Assets Holdings password',
+    react: PasswordResetEmail({ fullName, resetUrl }),
+  });
+
+  if (error) {
+    console.error('Password reset email failed:', error);
   }
 }
