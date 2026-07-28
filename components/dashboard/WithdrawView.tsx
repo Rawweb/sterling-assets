@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { ShieldAlert, Clock, XCircle, Check } from 'lucide-react';
 import DetailRow from '@/components/ui/DetailRow';
 import { formatCents } from '@/lib/money';
-import {
-  depositMethods,
-  withdrawalConfig,
-} from '@/lib/dashboard-data';
+import { depositMethods, withdrawalConfig } from '@/lib/dashboard-data';
+import { toast } from 'sonner';
 
 const GATE = {
   NONE: {
@@ -45,7 +43,6 @@ export default function WithdrawView({
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   if (kycStatus !== 'APPROVED') {
@@ -71,7 +68,6 @@ export default function WithdrawView({
     if (!canSubmit) return;
 
     setSubmitting(true);
-    setSubmitError(null);
 
     try {
       const res = await fetch('/api/withdrawals', {
@@ -87,13 +83,15 @@ export default function WithdrawView({
       const data = await res.json();
 
       if (!res.ok) {
-        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        toast.error(data.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
+      toast.success('Withdrawal submitted! We will review it shortly.');
+
       setSubmitted(true);
     } catch {
-      setSubmitError('Network error. Check your connection and try again.');
+      toast.error('Network error. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -276,12 +274,6 @@ export default function WithdrawView({
         >
           {submitting ? 'Submitting...' : 'Request withdrawal'}
         </button>
-
-        {submitError && (
-          <p className='mt-3 text-center text-[13px] text-down'>
-            {submitError}
-          </p>
-        )}
       </aside>
     </div>
   );

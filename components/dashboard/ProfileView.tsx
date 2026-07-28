@@ -8,6 +8,7 @@ import FormField from '@/components/ui/FormField';
 import PasswordField from '@/components/auth/PasswordField';
 import ProfilePicture from '@/components/dashboard/ProfilePicture';
 import type { Viewer } from '@/lib/viewer';
+import { toast } from 'sonner';
 
 const TABS = ['Personal', 'Password', 'Notifications'] as const;
 type Tab = (typeof TABS)[number];
@@ -35,11 +36,9 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
   const [fullName, setFullName] = useState(viewer.fullName);
   const [phone, setPhone] = useState(viewer.phone);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function save() {
     setSaving(true);
-    setMsg(null);
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
@@ -48,16 +47,13 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({
-          ok: false,
-          text: data.error ?? 'Could not save your profile.',
-        });
+        toast.error('Could not update your profile');
         return;
       }
-      setMsg({ ok: true, text: 'Profile updated.' });
+      toast.success('Profile updated.');
       router.refresh();
     } catch {
-      setMsg({ ok: false, text: 'Network error. Please try again.' });
+      toast.error('Network error. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -119,12 +115,6 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
         >
           {saving ? 'Saving...' : 'Update profile'}
         </button>
-
-        {msg && (
-          <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
-            {msg.text}
-          </p>
-        )}
       </div>
     </div>
   );
@@ -209,11 +199,9 @@ function NotificationsTab({ viewer }: { viewer: Viewer }) {
   const [notifyProfit, setP] = useState(viewer.notifyProfit);
   const [notifyPlanExpiry, setE] = useState(viewer.notifyPlanExpiry);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function save() {
     setSaving(true);
-    setMsg(null);
     try {
       const res = await fetch('/api/preferences', {
         method: 'POST',
@@ -226,15 +214,12 @@ function NotificationsTab({ viewer }: { viewer: Viewer }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({
-          ok: false,
-          text: data.error ?? 'Could not save preferences.',
-        });
+        toast.error('Could not save preferences.');
         return;
       }
-      setMsg({ ok: true, text: 'Preferences saved.' });
+      toast.success('Preferences saved.');
     } catch {
-      setMsg({ ok: false, text: 'Network error. Please try again.' });
+      toast.error('Network error. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -268,12 +253,6 @@ function NotificationsTab({ viewer }: { viewer: Viewer }) {
       >
         {saving ? 'Saving...' : 'Save preferences'}
       </button>
-
-      {msg && (
-        <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
-          {msg.text}
-        </p>
-      )}
     </div>
   );
 }

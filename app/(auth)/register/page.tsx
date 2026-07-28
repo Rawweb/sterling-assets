@@ -9,6 +9,7 @@ import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import CountrySelect from '@/components/auth/CountrySelect';
+import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function RegisterPage() {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
+        toast.success('Account created! Check your email to verify.');
         router.push('/verify-email');
         return;
       }

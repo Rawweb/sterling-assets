@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from 'next/font/google';
-import "./globals.css";
+import './globals.css';
+import { Toaster } from 'sonner';
 
 const display = Space_Grotesk({
   variable: '--font-display',
@@ -23,8 +24,7 @@ export const metadata: Metadata = {
     default: 'Sterling Assets Holdings',
     template: '%s | Sterling Assets Holdings',
   },
-  description:
-    'Sterling Assets Holdings investment platform.',
+  description: 'Sterling Assets Holdings investment platform.',
   robots: { index: false, follow: false },
   openGraph: {
     title: 'Sterling Assets Holdings',
@@ -42,10 +42,13 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang='en'
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className='min-h-full flex flex-col'>
+        {children}
+        <Toaster position='top-right' richColors duration={4000} />
+      </body>
     </html>
   );
 }

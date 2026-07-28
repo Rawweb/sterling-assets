@@ -7,6 +7,7 @@ import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function LoginPage() {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
+        toast.success('Welcome back!');
         router.push('/dashboard');
         return;
       }

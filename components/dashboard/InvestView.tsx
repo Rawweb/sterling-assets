@@ -7,6 +7,7 @@ import { formatCents } from '@/lib/money';
 import DetailRow from '@/components/ui/DetailRow';
 import type { Plan } from '@/lib/plans';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function InvestView({
   balanceCents,
@@ -25,7 +26,6 @@ export default function InvestView({
   const [planId, setPlanId] = useState(plans[0].id);
   const [amount, setAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const plan = plans.find((p) => p.id === planId)!;
@@ -52,7 +52,6 @@ export default function InvestView({
     if (!canSubmit) return;
 
     setSubmitting(true);
-    setSubmitError(null);
 
     try {
       const res = await fetch('/api/invest', {
@@ -64,13 +63,15 @@ export default function InvestView({
       const data = await res.json();
 
       if (!res.ok) {
-        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        toast.error(data.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
+      toast.success('Investment started!');
+
       setSubmitted(true);
     } catch {
-      setSubmitError('Network error. Check your connection and try again.');
+      toast.error('Network error. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -221,12 +222,6 @@ export default function InvestView({
           >
             {submitting ? 'Investing...' : 'Confirm and invest'}
           </button>
-
-          {submitError && (
-            <p className='mt-3 text-center text-[13px] text-down'>
-              {submitError}
-            </p>
-          )}
         </aside>
       </div>
     </>

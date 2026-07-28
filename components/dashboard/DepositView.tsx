@@ -9,6 +9,7 @@ import { depositMethods } from '@/lib/dashboard-data';
 import { QRCodeSVG } from 'qrcode.react';
 import FileDrop from '@/components/ui/FileDrop';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function DepositView() {
   const [methodId, setMethodId] = useState(depositMethods[0].id);
@@ -25,14 +26,12 @@ export default function DepositView() {
 
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
     if (!file) return; // safety; button is disabled without it anyway
 
     setSubmitting(true);
-    setSubmitError(null);
 
     try {
       const res = await fetch('/api/deposits', {
@@ -48,13 +47,14 @@ export default function DepositView() {
       const data = await res.json();
 
       if (!res.ok) {
-        setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        toast.error(data.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
+      toast.success('Deposit submitted! We will review it shortly.');
       setSubmitted(true);
     } catch {
-      setSubmitError('Network error. Check your connection and try again.');
+      toast.error('Network error. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -150,11 +150,6 @@ export default function DepositView() {
             >
               {submitting ? 'Submitting...' : 'I have sent the payment'}
             </button>
-            {submitError && (
-              <p className='mt-3 text-center text-[13px] text-down'>
-                {submitError}
-              </p>
-            )}
           </aside>
         </div>
       </>
