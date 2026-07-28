@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { User, ChevronDown, LogOut, UserCircle } from 'lucide-react';
 
-export default function UserMenu({ fullName }: { fullName: string }) {
+export default function UserMenu({
+  fullName,
+  profileHref,
+}: {
+  fullName: string;
+  profileHref?: string;
+}) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +48,7 @@ export default function UserMenu({ fullName }: { fullName: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup='menu'
-        className='flex items-center gap-2 rounded-full border border-on-navy/10 py-1.5 pl-1.5 pr-2.5 text-on-navy transition-colors hover:bg-on-navy/10  active:bg-surface/20 active:scale-[0.97]'
+        className='flex items-center gap-2 rounded-full border border-on-navy/10 py-1.5 pl-1.5 pr-2.5 text-on-navy transition-colors hover:bg-on-navy/10 active:bg-surface/20 active:scale-[0.97]'
       >
         <span className='grid size-7 place-items-center rounded-full bg-surface text-navy-900'>
           <User size={16} />
@@ -61,17 +67,20 @@ export default function UserMenu({ fullName }: { fullName: string }) {
           role='menu'
           className='absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1.5 shadow-xl'
         >
-          <Link
-            role='menuitem'
-            href='/dashboard/profile'
-            onClick={() => setOpen(false)}
-            className={itemClass}
-          >
-            <UserCircle size={16} className='text-muted' />
-            Profile
-          </Link>
-
-          <div className='my-1.5 h-px bg-line' />
+          {profileHref && (
+            <>
+              <Link
+                role='menuitem'
+                href={profileHref}
+                onClick={() => setOpen(false)}
+                className={itemClass}
+              >
+                <UserCircle size={16} className='text-muted' />
+                Profile
+              </Link>
+              <div className='my-1.5 h-px bg-line' />
+            </>
+          )}
 
           <form action='/api/auth/logout' method='post'>
             <button

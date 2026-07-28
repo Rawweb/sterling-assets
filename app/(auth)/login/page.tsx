@@ -34,7 +34,9 @@ export default function LoginPage() {
 
       if (res.ok) {
         toast.success('Welcome back!');
-        router.push('/dashboard');
+        // Do not leave the sign-in page in the history stack. This keeps Back
+        // navigation on authenticated pages from returning users to /login.
+        router.replace(data.role === 'ADMIN' ? '/admin' : '/dashboard');
         return;
       }
 

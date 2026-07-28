@@ -9,9 +9,10 @@ type Props = {
   label: string;
   icon: ReactNode;
   exact?: boolean;
+  badge?: number;
 };
 
-export default function NavLink({ href, label, icon, exact }: Props) {
+export default function NavLink({ href, label, icon, exact, badge }: Props) {
   const pathname = usePathname();
   const isActive = exact ? pathname === href : pathname.startsWith(href);
 
@@ -20,7 +21,7 @@ export default function NavLink({ href, label, icon, exact }: Props) {
       href={href}
       aria-current={isActive ? 'page' : undefined}
       className={[
-        'flex flex-col items-center justify-center gap-2 rounded-xl px-1.5 py-4',
+        'relative flex flex-col items-center justify-center gap-2 rounded-xl px-1.5 py-4',
         'text-xs font-medium leading-tight text-center transition',
         isActive
           ? 'bg-linear-to-br from-primary to-primary-press text-surface shadow-lg shadow-primary/40'
@@ -29,6 +30,19 @@ export default function NavLink({ href, label, icon, exact }: Props) {
     >
       {icon}
       <span>{label}</span>
+
+      {/* Pending count badge — only shown when badge > 0 */}
+      {badge !== undefined && badge > 0 && (
+        <span
+          className={[
+            'absolute right-2 top-2 grid min-w-[16px] place-items-center',
+            'rounded-full px-1 text-[9px] font-bold text-surface',
+            isActive ? 'bg-surface text-primary' : 'bg-gold',
+          ].join(' ')}
+        >
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
     </Link>
   );
 }

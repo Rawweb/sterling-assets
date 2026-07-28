@@ -11,6 +11,8 @@ export default async function UserDashboardLayout({
 }) {
   const viewer = await getViewer();
   if (!viewer) redirect('/login');
+  if (viewer.role === 'ADMIN') redirect('/admin');
+
   const summary = await getSummary(viewer.id);
 
   return (
@@ -25,7 +27,10 @@ export default async function UserDashboardLayout({
       {/* capped shell */}
       <div className='mx-auto flex max-w-shell pt-16'>
         <aside className='sticky top-16 hidden h-[calc(100dvh-4rem)] w-sidebar shrink-0 lg:block'>
-          <Sidebar fullName={viewer.fullName} balanceCents={summary.balanceCents} />
+          <Sidebar
+            fullName={viewer.fullName}
+            balanceCents={summary.balanceCents}
+          />
         </aside>
 
         <main className='min-w-0 flex-1'>{children}</main>

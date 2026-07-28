@@ -12,6 +12,12 @@ import {
   Bitcoin,
   Coins,
   CircleDollarSign,
+  LayoutDashboard,
+  Users,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Settings,
+  ScrollText,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -33,6 +39,18 @@ export const userNav: NavItem[] = [
   { label: 'Investment plans', href: '/dashboard/plans', icon: LayoutGrid },
   { label: 'My plans', href: '/dashboard/my-plans', icon: Layers },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Share2 },
+];
+
+export const adminNav: NavItem[] = [
+  { label: 'Overview', href: '/admin', icon: LayoutDashboard, exact: true },
+  { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Deposits', href: '/admin/deposits', icon: ArrowDownCircle },
+  { label: 'Withdrawals', href: '/admin/withdrawals', icon: ArrowUpCircle },
+  { label: 'KYC', href: '/admin/kyc', icon: ShieldCheck },
+  { label: 'Plans', href: '/admin/plans', icon: LayoutGrid },
+  { label: 'Transactions', href: '/admin/transactions', icon: Receipt },
+  { label: 'Settings', href: '/admin/settings', icon: Settings },
+  { label: 'Audit log', href: '/admin/audit-log', icon: ScrollText },
 ];
 
 // Withdrawal

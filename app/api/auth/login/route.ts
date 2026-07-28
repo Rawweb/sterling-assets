@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
         id: true,
         passwordHash: true,
         emailVerified: true,
+        role: true,
       },
     });
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user.emailVerified) {
-      await setPendingEmail(email)
+      await setPendingEmail(email);
       return Response.json(
         {
           error: 'Please verify your email before signing in',
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     await createSession(user.id, remember);
 
-    return Response.json({ ok: true }, { status: 200 });
+    return Response.json({ ok: true, role: user.role }, { status: 200 });
   } catch (error) {
     console.error('Login failed:', error);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });
