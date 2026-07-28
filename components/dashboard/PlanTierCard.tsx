@@ -1,7 +1,7 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import type { Plan } from '@/lib/dashboard-data';
+import type { Plan } from '@/lib/plans';
 import { formatCents } from '@/lib/money';
 
 export default function PlanTierCard({
@@ -28,7 +28,7 @@ export default function PlanTierCard({
 
   const content = (
     <>
-      <div className='rounded-xl bg-linear-to-br from-primary to-primary-press px-4 py-3.5 text-center text-surface'>
+      <div className='rounded-xl bg-linear-to-br from-primary to-primary-press px-4  py-3.5 text-center text-surface'>
         <p className='text-[13px] font-semibold opacity-80'>{plan.name}</p>
         <p className='font-mono text-3xl font-bold leading-tight'>
           {plan.dailyRatePct}

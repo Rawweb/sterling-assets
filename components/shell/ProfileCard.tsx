@@ -1,5 +1,4 @@
 import { User, Wallet } from 'lucide-react';
-import { demoUser } from '@/lib/dashboard-data';
 import { formatCents } from '@/lib/money';
 
 export default function ProfileCard({fullName, balanceCents }: {fullName: string; balanceCents: number }) {

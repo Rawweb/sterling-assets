@@ -5,19 +5,12 @@ import Tabs from '@/components/ui/Tabs';
 import DataTable, { type Column } from '@/components/ui/DataTable';
 import Badge from '@/components/ui/Badge';
 import { formatCents, formatSignedCents, formatDate } from '@/lib/money';
-import { type TxStatus } from '@/lib/dashboard-data';
 import type { UserDeposit } from '@/lib/deposits';
 import type { UserWithdrawal } from '@/lib/withdrawals';
 import type { OtherTransaction } from '@/lib/transactions';
 
 const TABS = ['Deposit', 'Withdrawal', 'Others'] as const;
 type Tab = (typeof TABS)[number];
-
-const STATUS_TONE = {
-  approved: 'success',
-  pending: 'pending',
-  rejected: 'danger',
-} as const;
 
 const DEPOSIT_TONE = {
   APPROVED: 'success',
@@ -45,10 +38,6 @@ function DepositBadge({
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }) {
   return <Badge tone={DEPOSIT_TONE[status]}>{status.toLowerCase()}</Badge>;
-}
-
-function StatusBadge({ status }: { status: TxStatus }) {
-  return <Badge tone={STATUS_TONE[status]}>{status}</Badge>;
 }
 
 const depositCols: Column[] = [

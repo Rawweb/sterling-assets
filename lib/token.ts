@@ -22,7 +22,8 @@ export async function createVerificationToken(userId: string) {
   return token;
 }
 
-type VerifyResult = { ok: true } | { ok: false; reason: 'invalid' | 'expired' };
+type VerifyResult =
+  { ok: true; userId: string } | { ok: false; reason: 'invalid' | 'expired' };
 
 export async function consumeVerificationToken(
   token: string,
@@ -48,7 +49,7 @@ export async function consumeVerificationToken(
 
   await clearPendingEmail()
 
-  return { ok: true };
+  return { ok: true, userId: record.userId };
 }
 
 export const RESEND_COOLDOWN_SECONDS = 60;

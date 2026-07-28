@@ -32,14 +32,21 @@ function Count({ n }: { n: number }) {
 }
 
 export default async function DashboardHome() {
-  const viewer = await getViewer();
-  if (!viewer) redirect('/login');
-  const summary = await getSummary(viewer.id);
-  const firstName = viewer.fullName.split(' ')[0];
-  const allPlans = await getUserPlans(viewer.id);
-  const activePlans = allPlans.filter((p) => p.status === 'ACTIVE');
-  const recentTransactions = await getRecentTransactions(viewer.id);
-  const referralData = await getReferralData(viewer.id);
+ const viewer = await getViewer();
+ if (!viewer) redirect('/login');
+
+ const firstName = viewer.fullName.split(' ')[0];
+
+ // run all four independent queries at once, not one after another
+ const [summary, allPlans, recentTransactions, referralData] =
+   await Promise.all([
+     getSummary(viewer.id),
+     getUserPlans(viewer.id),
+     getRecentTransactions(viewer.id),
+     getReferralData(viewer.id),
+   ]);
+
+ const activePlans = allPlans.filter((p) => p.status === 'ACTIVE');
 
   const cards = [
     {

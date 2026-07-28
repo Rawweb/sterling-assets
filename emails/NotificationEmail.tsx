@@ -39,7 +39,12 @@ export default function NotificationEmail({ title, message, fullName }: Props) {
             <Text style={paragraph}>
               {fullName ? `Hi ${fullName},` : 'Hi,'}
             </Text>
-            <Text style={paragraph}>{message}</Text>
+            
+            {message.split('\n\n').map((para, i) => (
+              <Text key={i} style={paragraph}>
+                {para}
+              </Text>
+            ))}
 
             <Button style={button} href={`${APP_URL}/dashboard`}>
               Go to your dashboard

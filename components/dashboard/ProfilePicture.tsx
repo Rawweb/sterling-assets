@@ -45,7 +45,7 @@ export default function ProfilePicture({
   const initial = fullName.trim().charAt(0).toUpperCase();
 
   return (
-    <section className='rounded-[14px] border border-line p-5 sm:p-6'>
+    <section className='mb-6 pb-6 border-b border-line '>
       <h2 className='text-base font-semibold'>Profile picture</h2>
       <p className='mb-4 mt-0.5 text-[13px] text-muted'>
         Shown on your dashboard. Square images look best.

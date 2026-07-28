@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { registerSchema } from '@/lib/validation';
 import { createVerificationToken } from '@/lib/token';
-import { sendNotificationEmail, sendVerificationEmail } from '@/lib/mail';
+import {  sendVerificationEmail } from '@/lib/mail';
 import { setPendingEmail } from '@/lib/session';
 import { generateReferralCode } from '@/lib/referral';
 
@@ -69,23 +69,6 @@ export async function POST(req: NextRequest) {
       },
       select: { id: true, email: true, fullName: true },
     });
-
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: 'WELCOME',
-        title: 'Welcome to Sterling Assets Holdings',
-        body: 'Your account has been created. Complete your identity verification to unlock all features.',
-      },
-    });
-
-    // welcome email
-    await sendNotificationEmail(
-      user.email,
-      'Welcome to Sterling Assets Holdings',
-      'Your account has been created. Complete your identity verification to unlock all features.',
-      user.fullName,
-    );
 
     const token = await createVerificationToken(user.id);
     await setPendingEmail(user.email);

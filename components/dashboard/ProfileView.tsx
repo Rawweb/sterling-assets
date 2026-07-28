@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera } from 'lucide-react';
 
 import Tabs from '@/components/ui/Tabs';
 import FormField from '@/components/ui/FormField';
 import PasswordField from '@/components/auth/PasswordField';
+import ProfilePicture from '@/components/dashboard/ProfilePicture';
 import type { Viewer } from '@/lib/viewer';
 
 const TABS = ['Personal', 'Password', 'Notifications'] as const;
@@ -31,7 +31,6 @@ export default function ProfileView({ viewer }: { viewer: Viewer }) {
 
 function PersonalTab({ viewer }: { viewer: Viewer }) {
   const router = useRouter();
-  const initial = viewer.fullName.trim().charAt(0).toUpperCase();
 
   const [fullName, setFullName] = useState(viewer.fullName);
   const [phone, setPhone] = useState(viewer.phone);
@@ -65,93 +64,74 @@ function PersonalTab({ viewer }: { viewer: Viewer }) {
   }
 
   return (
-    <div className='rounded-[14px] border border-line p-5 sm:p-6'>
-      <div className='mb-6 flex items-center gap-3.5'>
-        <div className='grid size-[52px] shrink-0 place-items-center rounded-full bg-bg text-lg font-semibold text-muted'>
-          {viewer.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={viewer.avatarUrl}
-              alt='Profile'
-              className='size-[52px] rounded-full object-cover'
-            />
-          ) : (
-            initial || <Camera size={20} />
-          )}
-        </div>
-        <div>
-          <p className='text-sm font-semibold'>Profile photo</p>
-          <label className='cursor-pointer text-[13px] font-semibold text-primary hover:underline'>
-            Upload a new photo
+    <div>
+      {/* name / phone form card */}
+      <div className='rounded-[14px] border border-line p-5 sm:p-6'>
+        {/* profile picture */}
+        <ProfilePicture
+          fullName={viewer.fullName}
+          avatarUrl={viewer.avatarUrl}
+        />
+        <div className='mb-5 grid gap-4 sm:grid-cols-2'>
+          <FormField label='Full name' htmlFor='fullName'>
             <input
-              type='file'
-              accept='image/png,image/jpeg,image/webp'
-              className='sr-only'
+              id='fullName'
+              name='fullName'
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className={inputClass}
             />
-          </label>
+          </FormField>
+          <FormField label='Email address' htmlFor='email'>
+            <input
+              id='email'
+              defaultValue={viewer.email}
+              readOnly
+              className={`${inputClass} bg-bg text-muted`}
+            />
+          </FormField>
+          <FormField label='Phone number' htmlFor='phone'>
+            <input
+              id='phone'
+              name='phone'
+              type='tel'
+              inputMode='tel'
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={inputClass}
+            />
+          </FormField>
+          <FormField label='Country' htmlFor='country'>
+            <input
+              id='country'
+              defaultValue={viewer.country}
+              readOnly
+              className={`${inputClass} bg-bg text-muted`}
+            />
+          </FormField>
         </div>
+
+        <button
+          type='button'
+          onClick={save}
+          disabled={saving}
+          className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50'
+        >
+          {saving ? 'Saving...' : 'Update profile'}
+        </button>
+
+        {msg && (
+          <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
+            {msg.text}
+          </p>
+        )}
       </div>
-
-      <div className='mb-5 grid gap-4 sm:grid-cols-2'>
-        <FormField label='Full name' htmlFor='fullName'>
-          <input
-            id='fullName'
-            name='fullName'
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className={inputClass}
-          />
-        </FormField>
-        <FormField label='Email address' htmlFor='email'>
-          <input
-            id='email'
-            defaultValue={viewer.email}
-            readOnly
-            className={`${inputClass} bg-bg text-muted`}
-          />
-        </FormField>
-        <FormField label='Phone number' htmlFor='phone'>
-          <input
-            id='phone'
-            name='phone'
-            type='tel'
-            inputMode='tel'
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className={inputClass}
-          />
-        </FormField>
-        <FormField label='Country' htmlFor='country'>
-          <input
-            id='country'
-            defaultValue={viewer.country}
-            readOnly
-            className={`${inputClass} bg-bg text-muted`}
-          />
-        </FormField>
-      </div>
-
-      <button
-        type='button'
-        onClick={save}
-        disabled={saving}
-        className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50'
-      >
-        {saving ? 'Saving...' : 'Update profile'}
-      </button>
-
-      {msg && (
-        <p className={`mt-3 text-[13px] ${msg.ok ? 'text-up' : 'text-down'}`}>
-          {msg.text}
-        </p>
-      )}
     </div>
   );
 }
 
 function PasswordTab() {
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -162,7 +142,6 @@ function PasswordTab() {
     const next = String(data.get('next') ?? '');
     const confirm = String(data.get('confirm') ?? '');
 
-    setDone(false);
     setError(null);
 
     if (!current || !next || !confirm)
@@ -184,7 +163,6 @@ function PasswordTab() {
         setError(resData.error ?? 'Could not change password.');
         return;
       }
-      setDone(true);
       form.reset();
     } catch {
       setError('Network error. Please try again.');
@@ -218,7 +196,7 @@ function PasswordTab() {
       <button
         type='submit'
         disabled={saving}
-        className='...disabled:opacity-50 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97]'
+        className='rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:opacity-50'
       >
         {saving ? 'Updating...' : 'Update password'}
       </button>
