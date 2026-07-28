@@ -39,7 +39,7 @@ export async function getSummary(userId: string) {
     balanceCents: balance,
     totalProfitCents: totalProfit,
     bonusCents: byType('BONUS'),
-    referralBonusCents: byType('DEPOSIT'),
+    referralBonusCents: byType('REFERRAL_BONUS'),
     totalDepositCents: byType('DEPOSIT'),
     totalWithdrawalCents: withdrawn._sum.amount ?? 0,
   };

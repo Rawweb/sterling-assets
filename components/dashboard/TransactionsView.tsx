@@ -82,6 +82,25 @@ export default function TransactionsView({
           getId={(r) => r.id}
           searchIn={(r) => `${r.coin} ${r.status}`}
           emptyMessage='No deposits yet.'
+          mobileCard={(r) => (
+            <div className='space-y-3'>
+              <div className='flex items-start justify-between gap-3'>
+                <div>
+                  <p className='font-medium'>Deposit</p>
+                  <p className='mt-1 text-[13px] text-muted'>
+                    {formatDate(r.createdAt)}
+                  </p>
+                </div>
+                <DepositBadge status={r.status} />
+              </div>
+              <div className='flex items-end justify-between border-t border-line pt-3'>
+                <span className='text-sm text-muted'>{r.coin}</span>
+                <span className='font-mono font-semibold'>
+                  {formatCents(r.amount)}
+                </span>
+              </div>
+            </div>
+          )}
           renderCell={(r, key) => {
             if (key === 'date')
               return (
@@ -106,6 +125,25 @@ export default function TransactionsView({
           getId={(r) => r.id}
           searchIn={(r) => `${r.coin} ${r.status}`}
           emptyMessage='No withdrawals yet.'
+          mobileCard={(r) => (
+            <div className='space-y-3'>
+              <div className='flex items-start justify-between gap-3'>
+                <div>
+                  <p className='font-medium'>Withdrawal</p>
+                  <p className='mt-1 text-[13px] text-muted'>
+                    {formatDate(r.createdAt)}
+                  </p>
+                </div>
+                <WithdrawalBadge status={r.status} />
+              </div>
+              <div className='flex items-end justify-between border-t border-line pt-3'>
+                <span className='text-sm text-muted'>{r.coin}</span>
+                <span className='font-mono font-semibold'>
+                  {formatCents(r.amount)}
+                </span>
+              </div>
+            </div>
+          )}
           renderCell={(r, key) => {
             if (key === 'date')
               return (
@@ -130,6 +168,21 @@ export default function TransactionsView({
           getId={(r) => r.id}
           searchIn={(r) => r.label}
           emptyMessage='Nothing here yet.'
+          mobileCard={(r) => (
+            <div className='flex items-start justify-between gap-4'>
+              <div className='min-w-0'>
+                <p className='font-medium'>{r.label}</p>
+                <p className='mt-1 text-[13px] text-muted'>
+                  {formatDate(r.createdAt)}
+                </p>
+              </div>
+              <span
+                className={`shrink-0 font-mono font-semibold ${r.amountCents < 0 ? 'text-down' : 'text-up'}`}
+              >
+                {formatSignedCents(r.amountCents)}
+              </span>
+            </div>
+          )}
           renderCell={(r, key) => {
             if (key === 'date')
               return (

@@ -16,6 +16,7 @@ type Props<T> = {
   getId: (row: T) => string;
   searchIn: (row: T) => string;
   renderCell: (row: T, key: string) => ReactNode;
+  mobileCard?: (row: T) => ReactNode;
   emptyMessage?: string;
 };
 
@@ -25,6 +26,7 @@ export default function DataTable<T>({
   getId,
   searchIn,
   renderCell,
+  mobileCard,
   emptyMessage = 'No records to show yet.',
 }: Props<T>) {
   const [query, setQuery] = useState('');
@@ -81,7 +83,26 @@ export default function DataTable<T>({
         </label>
       </div>
 
-      <div className='overflow-x-auto'>
+      {mobileCard && (
+        <div className='space-y-3 sm:hidden'>
+          {visible.length === 0 ? (
+            <div className='border-b border-line px-3 py-9 text-center text-sm text-muted'>
+              {emptyMessage}
+            </div>
+          ) : (
+            visible.map((row) => (
+              <div
+                key={getId(row)}
+                className='rounded-xl border border-line bg-surface p-4'
+              >
+                {mobileCard(row)}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      <div className={mobileCard ? 'hidden overflow-x-auto sm:block' : 'overflow-x-auto'}>
         <div className='min-w-[620px]'>
           <div
             style={grid}

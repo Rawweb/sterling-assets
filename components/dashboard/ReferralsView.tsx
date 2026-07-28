@@ -51,6 +51,19 @@ export default function ReferralsView({ data }: { data: ReferralData }) {
         getId={(r) => r.id}
         searchIn={(r) => r.name}
         emptyMessage='Nobody has signed up with your link yet.'
+        mobileCard={(r) => (
+          <div className='flex items-start justify-between gap-4'>
+            <div className='min-w-0'>
+              <p className='truncate font-medium'>{r.name}</p>
+              <p className='mt-1 text-[13px] text-muted'>
+                Joined {formatDate(r.joinedAt)}
+              </p>
+            </div>
+            <Badge tone={r.hasInvested ? 'success' : 'neutral'}>
+              {r.hasInvested ? 'Invested' : 'Signed up'}
+            </Badge>
+          </div>
+        )}
         renderCell={(r, key) => {
           if (key === 'name')
             return <span className='font-medium'>{r.name}</span>;

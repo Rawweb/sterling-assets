@@ -30,6 +30,19 @@ export default function ProfitHistoryView({
         getId={(r) => r.id}
         searchIn={(r) => r.planName}
         emptyMessage='No profit recorded yet.'
+        mobileCard={(r) => (
+          <div className='flex items-start justify-between gap-4'>
+            <div className='min-w-0'>
+              <p className='font-medium'>{r.planName}</p>
+              <p className='mt-1 text-[13px] text-muted'>
+                {formatDate(r.createdAt)}
+              </p>
+            </div>
+            <span className='shrink-0 font-mono font-semibold text-up'>
+              +{formatCents(r.amountCents)}
+            </span>
+          </div>
+        )}
         renderCell={(r, key) => {
           if (key === 'date')
             return (
