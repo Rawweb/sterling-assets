@@ -1,7 +1,5 @@
-export default function Home() {
-  return (
-    <div>
-      <h1 className='text-navy text-7xl '>Test</h1>
-    </div>
-  );
+import { redirect } from 'next/navigation';
+
+export default function RootPage() {
+  redirect('/login');
 }
