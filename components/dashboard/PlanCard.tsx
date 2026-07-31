@@ -2,9 +2,18 @@ import type { UserPlanView } from '@/lib/user-plans';
 import { formatCents, formatDate } from '@/lib/money';
 import Badge from '@/components/ui/Badge';
 
+function statusBadge(status: string) {
+  if (status === 'ACTIVE') return { tone: 'active' as const, label: 'Active' };
+  if (status === 'CANCELLED')
+    return { tone: 'danger' as const, label: 'Cancelled' };
+  return { tone: 'neutral' as const, label: 'Completed' };
+}
+
 export default function PlanCard({ plan }: { plan: UserPlanView }) {
   const pct = Math.round((plan.daysPaid / plan.durationDays) * 100);
   const isActive = plan.status === 'ACTIVE';
+  const isCancelled = plan.status === 'CANCELLED';
+  const { tone, label } = statusBadge(plan.status);
 
   return (
     <div className='rounded-[14px] border border-line p-[18px]'>
@@ -15,9 +24,7 @@ export default function PlanCard({ plan }: { plan: UserPlanView }) {
             {formatCents(plan.investedCents)} invested
           </p>
         </div>
-        <Badge tone={isActive ? 'active' : 'neutral'}>
-          {isActive ? 'Active' : 'Completed'}
-        </Badge>
+        <Badge tone={tone}>{label}</Badge>
       </div>
 
       <div className='mt-4'>
@@ -32,7 +39,9 @@ export default function PlanCard({ plan }: { plan: UserPlanView }) {
             className={`h-full rounded-full ${
               isActive
                 ? 'bg-linear-to-r from-primary to-primary-press'
-                : 'bg-muted/40'
+                : isCancelled
+                  ? 'bg-down/40'
+                  : 'bg-muted/40'
             }`}
             style={{ width: `${pct}%` }}
           />
@@ -48,9 +57,15 @@ export default function PlanCard({ plan }: { plan: UserPlanView }) {
         </div>
         <div className='flex items-center justify-between'>
           <span className='text-muted'>
-            {isActive ? 'Earned so far' : 'Total earned'}
+            {isActive
+              ? 'Earned so far'
+              : isCancelled
+                ? 'Profit discarded'
+                : 'Total earned'}
           </span>
-          <b className='font-mono text-up'>+{formatCents(plan.earnedCents)}</b>
+          <b className={`font-mono ${isCancelled ? 'text-muted' : 'text-up'}`}>
+            {isCancelled ? '—' : `+${formatCents(plan.earnedCents)}`}
+          </b>
         </div>
       </div>
     </div>

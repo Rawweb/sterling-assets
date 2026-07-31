@@ -3,7 +3,7 @@ type Tone = 'active' | 'pending' | 'success' | 'danger' | 'neutral';
 const TONES: Record<Tone, string> = {
   active: 'bg-primary/12 text-primary',
   pending: 'bg-gold/14 text-gold',
-  success: 'bg-up/12 text-up',
+  success: 'bg-up/20 text-up',
   danger: 'bg-down/12 text-down',
   neutral: 'bg-line/60 text-muted',
 };

@@ -133,6 +133,11 @@ enum AuditAction {
   WITHDRAWAL_REJECTED
   KYC_APPROVED
   KYC_REJECTED
+  PLAN_CREATED
+  PLAN_UPDATED
+  PLAN_ACTIVATED
+  PLAN_DEACTIVATED
+  USER_PLAN_CANCELLED
 }
 
 model AuditLog {
@@ -187,6 +192,7 @@ model Plan {
 enum UserPlanStatus {
   ACTIVE
   COMPLETED
+  CANCELLED
 }
 
 model UserPlan {
@@ -249,6 +255,7 @@ enum NotificationType {
   KYC_REJECTED
   PROFIT_EARNED
   PLAN_COMPLETED
+  PLAN_CANCELLED
   WELCOME
 }
 
