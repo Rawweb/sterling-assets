@@ -15,7 +15,10 @@ export async function sendVerificationEmail(
   token: string,
   fullName?: string,
 ) {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const base =
+    process.env.APP_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    'http://localhost:3000';
   const link = `${base}/api/auth/verify?token=${token}`;
 
   if (process.env.NODE_ENV !== 'production') {
