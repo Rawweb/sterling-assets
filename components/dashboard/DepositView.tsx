@@ -2,25 +2,39 @@
 
 import { useState } from 'react';
 import { AlertTriangle, ArrowLeft, Check } from 'lucide-react';
+import { Bitcoin, Coins, CircleDollarSign } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import DetailRow from '@/components/ui/DetailRow';
 import CopyField from '@/components/ui/CopyField';
 import { formatCents } from '@/lib/money';
-import { depositMethods } from '@/lib/dashboard-data';
 import { QRCodeSVG } from 'qrcode.react';
 import FileDrop from '@/components/ui/FileDrop';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import type { DepositMethod } from '@/lib/wallet-addresses';
 
-export default function DepositView() {
-  const [methodId, setMethodId] = useState(depositMethods[0].id);
+// Icon mapping lives here — it is a display concern, not data.
+// When a new coin is added in the DB, add its icon here.
+const COIN_ICONS: Record<string, LucideIcon> = {
+  Bitcoin: Bitcoin,
+  Ethereum: Coins,
+  'USDT (TRC20)': CircleDollarSign,
+};
+
+function getCoinIcon(coin: string): LucideIcon {
+  return COIN_ICONS[coin] ?? CircleDollarSign;
+}
+
+export default function DepositView({ methods }: { methods: DepositMethod[] }) {
+  const [methodId, setMethodId] = useState(methods[0]?.id ?? '');
   const [amount, setAmount] = useState('');
   const [confirmed, setConfirmed] = useState(false);
 
-  const method = depositMethods.find((m) => m.id === methodId)!;
+  const method = methods.find((m) => m.id === methodId) ?? methods[0];
   const cents = Math.round((parseFloat(amount) || 0) * 100);
 
   const error =
-    amount !== '' && cents < method.minCents
+    method && amount !== '' && cents < method.minCents
       ? `Minimum deposit is ${formatCents(method.minCents)}`
       : null;
 
@@ -29,7 +43,7 @@ export default function DepositView() {
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
-    if (!file) return; // safety; button is disabled without it anyway
+    if (!file || !method) return;
 
     setSubmitting(true);
 
@@ -40,7 +54,7 @@ export default function DepositView() {
         body: JSON.stringify({
           amount: cents,
           coin: method.coin,
-          proofUrl: 'https://placeholder.test/proof.jpg', // real R2 upload later
+          proofUrl: 'https://placeholder.test/proof.jpg',
         }),
       });
 
@@ -58,6 +72,14 @@ export default function DepositView() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!method) {
+    return (
+      <p className='py-10 text-center text-sm text-muted'>
+        No deposit methods available. Please check back later.
+      </p>
+    );
   }
 
   if (submitted) {
@@ -102,7 +124,6 @@ export default function DepositView() {
               address.
             </p>
 
-            {/* qrcode */}
             <div className='mb-4 flex justify-center rounded-xl border border-line bg-surface p-5'>
               <QRCodeSVG
                 value={method.address}
@@ -165,8 +186,8 @@ export default function DepositView() {
           aria-label='Choose a coin'
           className='mb-6 grid gap-2.5 sm:grid-cols-3'
         >
-          {depositMethods.map((m) => {
-            const Icon = m.icon;
+          {methods.map((m) => {
+            const Icon = getCoinIcon(m.coin);
             const active = m.id === methodId;
 
             return (
@@ -247,7 +268,6 @@ export default function DepositView() {
         <dl className='space-y-3 text-sm'>
           <DetailRow label='Coin' value={method.coin} />
           <DetailRow label='Network' value={method.network} />
-          {/* <DetailRow label='Minimum' value={formatCents(method.minCents)} /> */}
           <DetailRow label='You deposit' value={formatCents(cents)} />
         </dl>
 

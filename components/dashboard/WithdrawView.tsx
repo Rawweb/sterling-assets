@@ -3,10 +3,24 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ShieldAlert, Clock, XCircle, Check } from 'lucide-react';
+import { Bitcoin, Coins, CircleDollarSign } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import DetailRow from '@/components/ui/DetailRow';
 import { formatCents } from '@/lib/money';
-import { depositMethods, withdrawalConfig } from '@/lib/dashboard-data';
-import { toast } from 'sonner';
+import { withdrawalConfig } from '@/lib/dashboard-data';
+import type { DepositMethod } from '@/lib/wallet-addresses';
+
+// Icon mapping lives here — same pattern as DepositView.
+const COIN_ICONS: Record<string, LucideIcon> = {
+  Bitcoin: Bitcoin,
+  Ethereum: Coins,
+  'USDT (TRC20)': CircleDollarSign,
+};
+
+function getCoinIcon(coin: string): LucideIcon {
+  return COIN_ICONS[coin] ?? CircleDollarSign;
+}
 
 const GATE = {
   NONE: {
@@ -35,11 +49,13 @@ const GATE = {
 export default function WithdrawView({
   balanceCents,
   kycStatus,
+  methods,
 }: {
   balanceCents: number;
   kycStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  methods: DepositMethod[];
 }) {
-  const [methodId, setMethodId] = useState(depositMethods[0].id);
+  const [methodId, setMethodId] = useState(methods[0]?.id ?? '');
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -64,8 +80,22 @@ export default function WithdrawView({
     );
   }
 
+  const method = methods.find((m) => m.id === methodId) ?? methods[0];
+
+  const cents = Math.round((parseFloat(amount) || 0) * 100);
+
+  let error: string | null = null;
+  if (amount !== '') {
+    if (cents < withdrawalConfig.minCents)
+      error = `Minimum withdrawal is ${formatCents(withdrawalConfig.minCents)}`;
+    else if (cents > balanceCents)
+      error = 'That is more than your available balance.';
+  }
+
+  const canSubmit = cents > 0 && !error && address.trim().length > 0;
+
   async function handleSubmit() {
-    if (!canSubmit) return;
+    if (!canSubmit || !method) return;
 
     setSubmitting(true);
 
@@ -75,7 +105,7 @@ export default function WithdrawView({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: cents,
-          coin: `${method.coin}`,
+          coin: method.coin,
           address: address.trim(),
         }),
       });
@@ -88,7 +118,6 @@ export default function WithdrawView({
       }
 
       toast.success('Withdrawal submitted! We will review it shortly.');
-
       setSubmitted(true);
     } catch {
       toast.error('Network error. Check your connection and try again.');
@@ -97,22 +126,13 @@ export default function WithdrawView({
     }
   }
 
-  const method = depositMethods.find((m) => m.id === methodId)!;
-  const balance = balanceCents;
-
-  const cents = Math.round((parseFloat(amount) || 0) * 100);
-  // const fee = Math.round((cents * withdrawalConfig.feePct) / 100);
-  // const receives = Math.max(0, cents - fee);
-
-  let error: string | null = null;
-  if (amount !== '') {
-    if (cents < withdrawalConfig.minCents)
-      error = `Minimum withdrawal is ${formatCents(withdrawalConfig.minCents)}`;
-    else if (cents > balance)
-      error = 'That is more than your available balance.';
+  if (!method) {
+    return (
+      <p className='py-10 text-center text-sm text-muted'>
+        No withdrawal methods available. Please check back later.
+      </p>
+    );
   }
-
-  const canSubmit = cents > 0 && !error && address.trim().length > 0;
 
   if (submitted) {
     return (
@@ -145,8 +165,8 @@ export default function WithdrawView({
           aria-label='Receive in'
           className='mb-6 grid gap-2.5 sm:grid-cols-3'
         >
-          {depositMethods.map((m) => {
-            const Icon = m.icon;
+          {methods.map((m) => {
+            const Icon = getCoinIcon(m.coin);
             const active = m.id === methodId;
 
             return (
@@ -195,7 +215,7 @@ export default function WithdrawView({
           </label>
           <button
             type='button'
-            onClick={() => setAmount((balance / 100).toFixed(2))}
+            onClick={() => setAmount((balanceCents / 100).toFixed(2))}
             className='text-[13px] font-semibold text-primary active:text-primary-press'
           >
             Withdraw all
@@ -203,7 +223,9 @@ export default function WithdrawView({
         </div>
 
         <div
-          className={`flex items-center rounded-xl border px-3.5 ${error ? 'border-down' : 'border-line focus-within:border-primary'}`}
+          className={`flex items-center rounded-xl border px-3.5 ${
+            error ? 'border-down' : 'border-line focus-within:border-primary'
+          }`}
         >
           <span className='text-muted'>$</span>
           <input
@@ -223,7 +245,7 @@ export default function WithdrawView({
           </p>
         ) : (
           <p className='mt-1.5 text-[13px] text-muted'>
-            Available: {formatCents(balance)}
+            Available: {formatCents(balanceCents)}
           </p>
         )}
 

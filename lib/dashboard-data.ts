@@ -60,43 +60,6 @@ export const withdrawalConfig = {
 
 export const pageSizeOptions = [10, 25, 50];
 
-// Deposit
-export type DepositMethod = {
-  id: string;
-  coin: string;
-  network: string;
-  address: string;
-  minCents: number;
-  icon: LucideIcon;
-};
-
-export const depositMethods: DepositMethod[] = [
-  {
-    id: 'btc',
-    coin: 'Bitcoin',
-    network: 'BTC',
-    address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-    minCents: 5000,
-    icon: Bitcoin,
-  },
-  {
-    id: 'eth',
-    coin: 'Ethereum',
-    network: 'ERC20',
-    address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1',
-    minCents: 5000,
-    icon: Coins,
-  },
-  {
-    id: 'usdt',
-    coin: 'USDT (TRC20)',
-    network: 'TRC20',
-    address: 'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxbxa1',
-    minCents: 2000,
-    icon: CircleDollarSign,
-  },
-];
-
 // KYC
 export type DocType = 'national_id' | 'passport' | 'drivers_license';
 
