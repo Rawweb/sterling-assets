@@ -11,9 +11,18 @@ Our team is committed to giving you a secure, transparent, and rewarding experie
 
 Welcome aboard. We look forward to supporting your investment journey.`;
 
+// Behind Render's proxy, req.nextUrl.origin resolves to the internal
+// localhost:10000 bind address, not the public URL. Always build
+// redirects from the configured public base instead.
+function getBaseUrl(req: NextRequest) {
+  return (
+    process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? req.nextUrl.origin
+  );
+}
+
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token');
-  const base = req.nextUrl.origin;
+  const base = getBaseUrl(req);
 
   if (!token) {
     return Response.redirect(`${base}/verify-email?status=invalid`);
