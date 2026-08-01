@@ -3,7 +3,7 @@ import Skeleton from '@/components/ui/Skeleton';
 
 export default function Loading() {
   return (
-    <PageShell title='Welcome back, ...'>
+    <PageShell title='Identity verification'>
       <div className='mx-auto max-w-shell px-4 py-6 sm:px-[22px]'>
         {/* stat cards */}
         <Skeleton className='mb-3.5 h-5 w-40' />
