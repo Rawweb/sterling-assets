@@ -7,9 +7,11 @@ import { User, ChevronDown, LogOut, UserCircle } from 'lucide-react';
 export default function UserMenu({
   fullName,
   profileHref,
+  avatarUrl,
 }: {
   fullName: string;
   profileHref?: string;
+  avatarUrl?: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -50,8 +52,19 @@ export default function UserMenu({
         aria-haspopup='menu'
         className='flex items-center gap-2 rounded-full border border-on-navy/10 py-1.5 pl-1.5 pr-2.5 text-on-navy transition-colors hover:bg-on-navy/10 active:bg-surface/20 active:scale-[0.97]'
       >
-        <span className='grid size-7 place-items-center rounded-full bg-surface text-navy-900'>
-          <User size={16} />
+        <span className='size-7 overflow-hidden rounded-full bg-surface text-navy-900'>
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt={fullName}
+              className='size-7 rounded-full object-cover'
+            />
+          ) : (
+            <span className='grid size-7 place-items-center'>
+              <User size={16} />
+            </span>
+          )}
         </span>
         <span className='hidden text-[13px] font-semibold sm:block'>
           {fullName}

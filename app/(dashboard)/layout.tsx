@@ -17,19 +17,18 @@ export default async function UserDashboardLayout({
 
   return (
     <div className='min-h-screen bg-bg'>
-      {/* full-bleed bar, capped contents */}
       <header className='fixed inset-x-0 top-0 z-40 h-16 bg-navy-900'>
         <div className='mx-auto h-full max-w-shell'>
           <Topbar />
         </div>
       </header>
 
-      {/* capped shell */}
       <div className='mx-auto flex max-w-shell pt-16'>
         <aside className='sticky top-16 hidden h-[calc(100dvh-4rem)] w-sidebar shrink-0 lg:block'>
           <Sidebar
             fullName={viewer.fullName}
             balanceCents={summary.balanceCents}
+            avatarUrl={viewer.avatarUrl}
           />
         </aside>
 

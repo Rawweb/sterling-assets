@@ -41,10 +41,12 @@ function docLabel(type: string) {
   return docTypes.find((d) => d.id === type)?.label ?? type;
 }
 
-function DocLink({ url, label }: { url: string; label: string }) {
+// Links go through /api/uploads/view so the bucket stays private.
+// The server generates a short-lived presigned GET URL and redirects.
+function DocLink({ fileKey, label }: { fileKey: string; label: string }) {
   return (
     <a
-      href={url}
+      href={`/api/uploads/view?key=${encodeURIComponent(fileKey)}`}
       target='_blank'
       rel='noopener noreferrer'
       className='inline-flex items-center gap-1 text-[13px] font-semibold text-primary hover:underline active:text-primary-press'
@@ -75,12 +77,10 @@ export default function AdminKycView({
         method: 'POST',
       });
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok) {
         toast.error(data.error ?? 'Action failed. Please try again.');
         return;
       }
-
       toast.success(
         action === 'approve'
           ? 'KYC approved. Withdrawals unlocked for this user.'
@@ -103,7 +103,6 @@ export default function AdminKycView({
             <p className='text-[12px] text-muted truncate'>{row.user.email}</p>
           </div>
         );
-
       case 'document':
         return (
           <div>
@@ -111,7 +110,6 @@ export default function AdminKycView({
             <p className='text-[12px] text-muted'>DOB: {row.dateOfBirth}</p>
           </div>
         );
-
       case 'location':
         return (
           <div>
@@ -119,25 +117,21 @@ export default function AdminKycView({
             <p className='text-[12px] text-muted'>{row.country}</p>
           </div>
         );
-
       case 'date':
         return <span className='text-muted'>{formatDate(row.createdAt)}</span>;
-
       case 'docs':
         return (
           <div className='flex flex-col gap-1'>
-            <DocLink url={row.documentFrontUrl} label='Front' />
+            <DocLink fileKey={row.documentFrontUrl} label='Front' />
             {row.documentBackUrl && (
-              <DocLink url={row.documentBackUrl} label='Back' />
+              <DocLink fileKey={row.documentBackUrl} label='Back' />
             )}
           </div>
         );
-
       case 'status':
         return (
           <Badge tone={statusTone(row.status)}>{statusText(row.status)}</Badge>
         );
-
       case 'actions': {
         if (row.status !== 'PENDING') return null;
         const busy = loadingId === row.id;
@@ -164,7 +158,6 @@ export default function AdminKycView({
           </div>
         );
       }
-
       default:
         return null;
     }
@@ -186,7 +179,7 @@ export default function AdminKycView({
             <div className='flex items-start justify-between gap-3'>
               <div className='min-w-0'>
                 <p className='truncate font-medium'>{row.user.fullName}</p>
-                <p className='truncate text-[12px] text-muted'>
+                <p className='text-[12px] text-muted'>
                   {row.user.email}
                 </p>
               </div>
@@ -194,7 +187,6 @@ export default function AdminKycView({
                 {statusText(row.status)}
               </Badge>
             </div>
-
             <div className='grid grid-cols-2 gap-3 border-y border-line py-3 text-sm'>
               <div>
                 <p className='text-[11px] font-semibold uppercase tracking-wide text-muted'>
@@ -211,12 +203,11 @@ export default function AdminKycView({
                 <p className='text-[12px] text-muted'>{row.country}</p>
               </div>
             </div>
-
             <div className='flex items-center justify-between gap-3'>
               <div className='flex flex-col gap-1'>
-                <DocLink url={row.documentFrontUrl} label='Front' />
+                <DocLink fileKey={row.documentFrontUrl} label='Front' />
                 {row.documentBackUrl && (
-                  <DocLink url={row.documentBackUrl} label='Back' />
+                  <DocLink fileKey={row.documentBackUrl} label='Back' />
                 )}
               </div>
               {row.status === 'PENDING' && renderCell(row, 'actions')}

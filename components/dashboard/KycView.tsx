@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CheckCircle2, Clock, Copy, XCircle } from 'lucide-react';
-
+import { toast } from 'sonner';
 import FormField from '@/components/ui/FormField';
 import FileDrop from '@/components/ui/FileDrop';
 import { docTypes, type DocType } from '@/lib/dashboard-data';
@@ -10,16 +11,63 @@ import { docTypes, type DocType } from '@/lib/dashboard-data';
 const inputClass =
   'w-full rounded-xl border border-line bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-primary';
 
+// Upload a single file to R2 via the presign endpoint.
+// Returns the R2 key to store in the database.
+async function uploadFile(file: File, uploadType: string): Promise<string> {
+  const presignRes = await fetch('/api/uploads/presign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contentType: file.type, uploadType }),
+  });
+
+  if (!presignRes.ok) {
+    const d = await presignRes.json().catch(() => ({}));
+    throw new Error(d.error ?? 'Failed to get upload URL.');
+  }
+
+  const { uploadUrl, key } = await presignRes.json();
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+
+  if (!uploadRes.ok) throw new Error('Failed to upload file to storage.');
+
+  return key;
+}
+
 export default function KycView({
   status,
+  initialPhone = '',
+  initialCountry = '',
 }: {
   status: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  initialPhone?: string;
+  initialCountry?: string;
 }) {
+  const router = useRouter();
   const [docType, setDocType] = useState<DocType>('national_id');
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [fields, setFields] = useState({
+    phone: initialPhone,
+    dateOfBirth: '',
+    addressLine: '',
+    city: '',
+    state: '',
+    country: initialCountry,
+  });
+
+  function setField(key: keyof typeof fields) {
+    return (e: React.ChangeEvent<HTMLInputElement>) =>
+      setFields((f) => ({ ...f, [key]: e.target.value }));
+  }
 
   if (status === 'APPROVED') {
     return (
@@ -41,10 +89,9 @@ export default function KycView({
     );
   }
 
-  // NONE: show intro until they click to begin
   if (status === 'NONE' && !showForm) {
     return (
-      <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center flex flex-col items-center'>
+      <div className='mx-auto flex max-w-md flex-col items-center rounded-[14px] border border-line px-5 py-10 text-center'>
         <div className='grid size-16 place-items-center rounded-full bg-bg'>
           <Copy size={30} className='text-muted' />
         </div>
@@ -63,27 +110,81 @@ export default function KycView({
     );
   }
 
-  // REJECTED, or NONE after clicking begin: show the form
-  // ...the rest of your existing form JSX unchanged...
   function onDocTypeChange(next: DocType) {
     setDocType(next);
-    // A type with no back must not carry a stale back file into the payload.
     if (next === 'passport') setBackFile(null);
   }
 
   const rejected = status === 'REJECTED';
   const needsBack = docType !== 'passport';
+
+  const fieldsComplete = Object.values(fields).every(
+    (v) => v.trim().length > 0,
+  );
   const canSubmit =
-    frontFile !== null && (!needsBack || backFile !== null) && confirmed;
+    frontFile !== null &&
+    (!needsBack || backFile !== null) &&
+    confirmed &&
+    fieldsComplete &&
+    !submitting;
+
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+
+    try {
+      // Upload documents to R2 first. Both uploads happen before
+      // we touch the database so a failed upload doesn't leave a
+      // partial KYC record.
+      const frontKey = await uploadFile(frontFile!, 'kyc-front');
+
+      let backKey: string | null = null;
+      if (needsBack && backFile) {
+        backKey = await uploadFile(backFile, 'kyc-back');
+      }
+
+      const res = await fetch('/api/kyc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          documentType: docType,
+          documentFrontUrl: frontKey,
+          documentBackUrl: backKey,
+          phone: fields.phone.trim(),
+          dateOfBirth: fields.dateOfBirth.trim(),
+          addressLine: fields.addressLine.trim(),
+          city: fields.city.trim(),
+          state: fields.state.trim(),
+          country: fields.country.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        toast.error(data.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      toast.success('Application submitted! We will review it shortly.');
+      router.refresh();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Network error. Try again.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className='mx-auto max-w-2xl'>
-      <h2 className='text-center mb-2 text-2xl md:text-4xl'>
+      <h2 className='mb-2 text-center text-2xl md:text-4xl'>
         Begin your ID-Verification
       </h2>
       <p className='mb-6 text-center text-sm text-muted'>
         To comply with regulation each participant will have to go through
-        indentity verification (KYC/AML) to prevent fraud causes.
+        identity verification (KYC/AML) to prevent fraud.
       </p>
 
       {rejected && (
@@ -97,71 +198,85 @@ export default function KycView({
       )}
 
       <div className='rounded-[14px] border border-line p-5 sm:p-6'>
-        {/* personal */}
-        <h2 className='text-base font-semibold mb-2'>Personal details</h2>
-        <p className='text-muted text-sm mb-2'>
-          Your simple personal information required for identification
+        {/* Personal details */}
+        <h2 className='mb-2 text-base font-semibold'>Personal details</h2>
+        <p className='mb-4 mt-0.5 text-[13px] text-muted'>
+          Please fill in your personal details exactly as they appear on your
+          document. You cannot edit these after submission.
         </p>
-        <div className='border-t  border-line'>
-          <p className='mb-4 mt-0.5 text-[13px] text-muted pt-2'>
-            Please type carefully and fill out the form with your personal
-            details. Your can’t edit these details once you submitted the form.
-          </p>
-        </div>
 
         <div className='grid gap-4 sm:grid-cols-2'>
-          <FormField label='First name' htmlFor='fn' required>
-            <input id='fn' className={inputClass} />
-          </FormField>
-          <FormField label='Last name' htmlFor='ln' required>
-            <input id='ln' className={inputClass} />
-          </FormField>
-          <FormField label='Email' htmlFor='em' required>
-            <input id='em' type='email' className={inputClass} />
-          </FormField>
           <FormField label='Phone number' htmlFor='ph' required>
             <input
               id='ph'
               type='tel'
               inputMode='tel'
               placeholder='+234...'
+              value={fields.phone}
+              onChange={setField('phone')}
               className={inputClass}
             />
           </FormField>
           <FormField label='Date of birth' htmlFor='dob' required>
-            <input id='dob' type='date' className={inputClass} />
+            <input
+              id='dob'
+              type='date'
+              value={fields.dateOfBirth}
+              onChange={setField('dateOfBirth')}
+              className={inputClass}
+            />
           </FormField>
         </div>
 
         <div className='my-6 h-px bg-line' />
 
-        {/* address */}
+        {/* Address */}
         <h2 className='text-base font-semibold'>Your address</h2>
         <p className='mb-4 mt-0.5 text-[13px] text-muted'>
-          Your simple location information required for identification
+          Enter the address that appears on your government-issued document.
         </p>
 
         <div className='grid gap-4 sm:grid-cols-2'>
           <FormField label='Address line' htmlFor='al' required>
-            <input id='al' className={inputClass} />
+            <input
+              id='al'
+              value={fields.addressLine}
+              onChange={setField('addressLine')}
+              className={inputClass}
+            />
           </FormField>
           <FormField label='City' htmlFor='ct' required>
-            <input id='ct' className={inputClass} />
+            <input
+              id='ct'
+              value={fields.city}
+              onChange={setField('city')}
+              className={inputClass}
+            />
           </FormField>
           <FormField label='State' htmlFor='st' required>
-            <input id='st' className={inputClass} />
+            <input
+              id='st'
+              value={fields.state}
+              onChange={setField('state')}
+              className={inputClass}
+            />
           </FormField>
           <FormField label='Country' htmlFor='co' required>
-            <input id='co' className={inputClass} />
+            <input
+              id='co'
+              value={fields.country}
+              onChange={setField('country')}
+              className={inputClass}
+            />
           </FormField>
         </div>
 
         <div className='my-6 h-px bg-line' />
 
-        {/* document */}
+        {/* Document upload */}
         <h2 className='text-base font-semibold'>Document upload</h2>
         <p className='mb-4 mt-0.5 text-[13px] text-muted'>
-          Your simple personal document required for identification
+          Upload clear photos of your government-issued identity document.
         </p>
 
         <div
@@ -200,19 +315,12 @@ export default function KycView({
             );
           })}
         </div>
-        <div>
-          <h3 className='mb-2'>
-            To avoid delays when verifying account, Please make sure your
-            document meets the criteria below:
-          </h3>
-          <ul className='mb-5 space-y-1.5 text-[13px] text-muted list-disc pl-5'>
-            <li>Your document must not be expired.</li>
-            <li>
-              The whole document must be visible, in focus, with no glare.
-            </li>
-            <li>Make sure that there is no light glare on the card.</li>
-          </ul>
-        </div>
+
+        <ul className='mb-5 list-disc space-y-1.5 pl-5 text-[13px] text-muted'>
+          <li>Your document must not be expired.</li>
+          <li>The whole document must be visible, in focus, with no glare.</li>
+          <li>Make sure there is no light glare on the card.</li>
+        </ul>
 
         <div className='space-y-5'>
           <FileDrop
@@ -247,10 +355,11 @@ export default function KycView({
 
         <button
           type='button'
+          onClick={handleSubmit}
           disabled={!canSubmit}
           className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
         >
-          Submit application
+          {submitting ? 'Uploading and submitting...' : 'Submit application'}
         </button>
 
         <p className='mt-3 text-center text-xs text-muted'>
@@ -272,7 +381,7 @@ function Result({
   body: string;
 }) {
   return (
-    <div className='mx-auto max-w-md rounded-[14px] border border-line px-5 py-10 text-center flex flex-col items-center'>
+    <div className='mx-auto flex max-w-md flex-col items-center rounded-[14px] border border-line px-5 py-10 text-center'>
       {icon}
       <h2 className='mt-3.5 text-lg font-semibold'>{title}</h2>
       <p className='mx-auto mt-1.5 max-w-sm text-sm text-muted'>{body}</p>

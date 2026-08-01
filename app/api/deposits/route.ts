@@ -3,13 +3,11 @@ import { getCurrentUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
 
 export async function POST(req: Request) {
-  // 1. auth
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
 
-  // 2. parse body safely
   let body: unknown;
   try {
     body = await req.json();
@@ -26,7 +24,6 @@ export async function POST(req: Request) {
     proofUrl?: unknown;
   };
 
-  // 3. validate types
   if (typeof amount !== 'number' || !Number.isInteger(amount) || amount <= 0) {
     return NextResponse.json(
       { error: 'Amount must be a positive whole number of cents.' },
@@ -36,14 +33,16 @@ export async function POST(req: Request) {
   if (typeof coin !== 'string' || coin.trim() === '') {
     return NextResponse.json({ error: 'Coin is required.' }, { status: 400 });
   }
-  if (typeof proofUrl !== 'string' || proofUrl.trim() === '') {
+
+  // Validate it is a real R2 key from our upload flow,
+  // not an arbitrary URL someone injected manually.
+  if (typeof proofUrl !== 'string' || !proofUrl.startsWith('deposits/')) {
     return NextResponse.json(
       { error: 'Proof of payment is required.' },
       { status: 400 },
     );
   }
 
-  // 4. validate coin against the real wallet table + enforce its minimum
   const wallet = await prisma.walletAddress.findUnique({ where: { coin } });
   if (!wallet) {
     return NextResponse.json({ error: 'Unsupported coin.' }, { status: 400 });
@@ -55,7 +54,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // 5. create the deposit as PENDING. No ledger write. No balance change.
   const deposit = await prisma.deposit.create({
     data: {
       userId: user.id,

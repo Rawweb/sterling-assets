@@ -10,7 +10,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
 
-  // block if already verified or awaiting review
   if (user.kycStatus === 'APPROVED') {
     return NextResponse.json(
       { error: 'You are already verified.' },
@@ -46,24 +45,28 @@ export async function POST(req: Request) {
     country,
   } = body as Record<string, unknown>;
 
-  // validate
   if (typeof documentType !== 'string' || !DOC_TYPES.includes(documentType)) {
     return NextResponse.json(
       { error: 'Invalid document type.' },
       { status: 400 },
     );
   }
-  if (typeof documentFrontUrl !== 'string' || documentFrontUrl.trim() === '') {
+
+  // Validate R2 keys — must come from our upload flow, not injected URLs.
+  if (
+    typeof documentFrontUrl !== 'string' ||
+    !documentFrontUrl.startsWith('kyc/')
+  ) {
     return NextResponse.json(
       { error: 'Front document is required.' },
       { status: 400 },
     );
   }
-  // back required unless passport
+
   const needsBack = documentType !== 'passport';
   if (
     needsBack &&
-    (typeof documentBackUrl !== 'string' || documentBackUrl.trim() === '')
+    (typeof documentBackUrl !== 'string' || !documentBackUrl.startsWith('kyc/'))
   ) {
     return NextResponse.json(
       { error: 'Back document is required.' },
@@ -90,7 +93,6 @@ export async function POST(req: Request) {
 
   try {
     await prisma.$transaction(async (tx) => {
-      // create the submission
       await tx.kycSubmission.create({
         data: {
           userId: user.id,
@@ -108,7 +110,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // update User: phone/country, and flip status to PENDING
       await tx.user.update({
         where: { id: user.id },
         data: {

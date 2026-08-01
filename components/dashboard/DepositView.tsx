@@ -13,8 +13,6 @@ import FileDrop from '@/components/ui/FileDrop';
 import Link from 'next/link';
 import type { DepositMethod } from '@/lib/wallet-addresses';
 
-// Icon mapping lives here — it is a display concern, not data.
-// When a new coin is added in the DB, add its icon here.
 const COIN_ICONS: Record<string, LucideIcon> = {
   Bitcoin: Bitcoin,
   Ethereum: Coins,
@@ -25,10 +23,39 @@ function getCoinIcon(coin: string): LucideIcon {
   return COIN_ICONS[coin] ?? CircleDollarSign;
 }
 
+// Upload a file to R2 via the presign endpoint and return the R2 key.
+async function uploadFile(file: File, uploadType: string): Promise<string> {
+  const presignRes = await fetch('/api/uploads/presign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contentType: file.type, uploadType }),
+  });
+
+  if (!presignRes.ok) {
+    const d = await presignRes.json().catch(() => ({}));
+    throw new Error(d.error ?? 'Failed to get upload URL.');
+  }
+
+  const { uploadUrl, key } = await presignRes.json();
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+
+  if (!uploadRes.ok) throw new Error('Failed to upload proof to storage.');
+
+  return key;
+}
+
 export default function DepositView({ methods }: { methods: DepositMethod[] }) {
   const [methodId, setMethodId] = useState(methods[0]?.id ?? '');
   const [amount, setAmount] = useState('');
   const [confirmed, setConfirmed] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const method = methods.find((m) => m.id === methodId) ?? methods[0];
   const cents = Math.round((parseFloat(amount) || 0) * 100);
@@ -38,27 +65,25 @@ export default function DepositView({ methods }: { methods: DepositMethod[] }) {
       ? `Minimum deposit is ${formatCents(method.minCents)}`
       : null;
 
-  const [file, setFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
   async function handleSubmit() {
     if (!file || !method) return;
-
     setSubmitting(true);
 
     try {
+      // Upload proof to R2 first, then record the deposit.
+      const proofKey = await uploadFile(file, 'deposit-proof');
+
       const res = await fetch('/api/deposits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: cents,
           coin: method.coin,
-          proofUrl: 'https://placeholder.test/proof.jpg',
+          proofUrl: proofKey,
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         toast.error(data.error ?? 'Something went wrong. Please try again.');
@@ -67,8 +92,10 @@ export default function DepositView({ methods }: { methods: DepositMethod[] }) {
 
       toast.success('Deposit submitted! We will review it shortly.');
       setSubmitted(true);
-    } catch {
-      toast.error('Network error. Check your connection and try again.');
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Network error. Try again.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -169,7 +196,7 @@ export default function DepositView({ methods }: { methods: DepositMethod[] }) {
               disabled={!file || submitting}
               className='mt-5 w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-surface transition hover:bg-primary-press active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
             >
-              {submitting ? 'Submitting...' : 'I have sent the payment'}
+              {submitting ? 'Uploading...' : 'I have sent the payment'}
             </button>
           </aside>
         </div>
@@ -207,20 +234,17 @@ export default function DepositView({ methods }: { methods: DepositMethod[] }) {
                   onChange={() => setMethodId(m.id)}
                   className='peer sr-only'
                 />
-
                 <span
                   className={`grid size-9 shrink-0 place-items-center rounded-lg ${active ? 'bg-primary/12 text-primary' : 'bg-bg text-muted'}`}
                 >
                   <Icon size={18} />
                 </span>
-
                 <span className='min-w-0 flex-1'>
                   <span className='block truncate text-sm font-semibold'>
                     {m.coin}
                   </span>
                   <span className='block text-xs text-muted'>{m.network}</span>
                 </span>
-
                 <span
                   className={`grid size-[18px] shrink-0 place-items-center rounded-full border-2 transition ${active ? 'border-primary' : 'border-line'} peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40`}
                 >

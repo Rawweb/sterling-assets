@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
 import PageShell from '@/components/dashboard/PageShell';
 import KycView from '@/components/dashboard/KycView';
 import { getViewer } from '@/lib/viewer';
+import { redirect } from 'next/navigation';
 
 export default async function KycPage() {
   const viewer = await getViewer();
@@ -9,7 +9,11 @@ export default async function KycPage() {
 
   return (
     <PageShell title='Identity verification'>
-      <KycView status={viewer.kycStatus} />
+      <KycView
+        status={viewer.kycStatus}
+        initialPhone={viewer.phone}
+        initialCountry={viewer.country}
+      />
     </PageShell>
   );
 }

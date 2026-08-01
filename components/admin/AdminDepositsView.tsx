@@ -53,12 +53,10 @@ export default function AdminDepositsView({
         method: 'POST',
       });
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok) {
         toast.error(data.error ?? 'Action failed. Please try again.');
         return;
       }
-
       toast.success(
         action === 'approve' ? 'Deposit approved.' : 'Deposit rejected.',
       );
@@ -76,10 +74,9 @@ export default function AdminDepositsView({
         return (
           <div>
             <p className='font-medium'>{row.user.fullName}</p>
-            <p className='text-[12px] text-muted truncate'>{row.user.email}</p>
+            <p className='text-[12px] text-muted'>{row.user.email}</p>
           </div>
         );
-
       case 'amount':
         return (
           <div>
@@ -87,19 +84,16 @@ export default function AdminDepositsView({
             <p className='text-[12px] text-muted'>{row.coin}</p>
           </div>
         );
-
       case 'date':
         return <span className='text-muted'>{formatDate(row.createdAt)}</span>;
-
       case 'status':
         return (
           <Badge tone={statusTone(row.status)}>{statusText(row.status)}</Badge>
         );
-
       case 'proof':
         return row.proofUrl ? (
           <a
-            href={row.proofUrl}
+            href={`/api/uploads/view?key=${encodeURIComponent(row.proofUrl)}`}
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-1 text-[13px] font-semibold text-primary hover:underline active:text-primary-press'
@@ -109,7 +103,6 @@ export default function AdminDepositsView({
         ) : (
           <span className='text-[13px] text-muted'>None</span>
         );
-
       case 'actions': {
         if (row.status !== 'PENDING') return null;
         const busy = loadingId === row.id;
@@ -136,7 +129,6 @@ export default function AdminDepositsView({
           </div>
         );
       }
-
       default:
         return null;
     }
@@ -166,7 +158,6 @@ export default function AdminDepositsView({
                 {statusText(row.status)}
               </Badge>
             </div>
-
             <div className='grid grid-cols-2 gap-3 border-y border-line py-3 text-sm'>
               <div>
                 <p className='text-[11px] font-semibold uppercase tracking-wide text-muted'>
@@ -184,7 +175,6 @@ export default function AdminDepositsView({
                 <p className='mt-1 text-muted'>{formatDate(row.createdAt)}</p>
               </div>
             </div>
-
             <div className='flex items-center justify-between gap-3'>
               <div>{renderCell(row, 'proof')}</div>
               {row.status === 'PENDING' && renderCell(row, 'actions')}

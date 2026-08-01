@@ -21,7 +21,11 @@ export default async function Topbar() {
     <header className='flex h-full w-full items-center'>
       <div className='flex w-sidebar shrink-0 items-center gap-3 pl-4 lg:pl-3.5'>
         <MobileNav>
-          <Sidebar fullName={viewer.fullName} balanceCents={balanceCents} />
+          <Sidebar
+            fullName={viewer.fullName}
+            balanceCents={balanceCents}
+            avatarUrl={viewer.avatarUrl}
+          />
         </MobileNav>
 
         <Logo withWordmark onDark size={32} />
@@ -46,6 +50,7 @@ export default async function Topbar() {
             <UserMenu
               fullName={viewer.fullName}
               profileHref='/dashboard/profile'
+              avatarUrl={viewer.avatarUrl}
             />
           </div>
         </div>
