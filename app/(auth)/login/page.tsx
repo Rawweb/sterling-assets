@@ -7,23 +7,45 @@ import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
     setSubmitting(true);
     setFormError('');
 
-    const payload = Object.fromEntries(new FormData(e.currentTarget));
+    if (!executeRecaptcha) {
+      setFormError('Security check not ready. Please try again.');
+      setSubmitting(false);
+      return;
+    }
 
+    // Step 1: reCAPTCHA gets its own try-catch.
+    // If Google's script throws (e.g. storage access denied),
+    // we show a specific message instead of "check your connection".
+    let recaptchaToken = '';
     try {
+      recaptchaToken = await executeRecaptcha('login');
+    } catch {
+      setFormError('Security check failed. Please refresh and try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Step 2: API call gets its own try-catch.
+    // Now "could not reach the server" only shows for real network failures.
+    try {
+      const payload = { ...formData, recaptchaToken };
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,8 +56,6 @@ export default function LoginPage() {
 
       if (res.ok) {
         toast.success('Welcome back!');
-        // Do not leave the sign-in page in the history stack. This keeps Back
-        // navigation on authenticated pages from returning users to /login.
         router.replace(data.role === 'ADMIN' ? '/admin' : '/dashboard');
         return;
       }

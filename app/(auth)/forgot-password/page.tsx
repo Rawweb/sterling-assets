@@ -3,36 +3,54 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Check } from 'lucide-react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { toast } from 'sonner';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 
 export default function ForgotPasswordPage() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitting(true);
+ async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+   e.preventDefault();
+   const formData = Object.fromEntries(new FormData(e.currentTarget));
+   setSubmitting(true);
 
-    const payload = Object.fromEntries(new FormData(e.currentTarget));
+   if (!executeRecaptcha) {
+     toast.error('Security check not ready. Please try again.');
+     setSubmitting(false);
+     return;
+   }
 
-    try {
-      await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+   // Step 1: reCAPTCHA separately.
+   let recaptchaToken = '';
+   try {
+     recaptchaToken = await executeRecaptcha('forgot_password');
+   } catch {
+     toast.error('Security check failed. Please refresh and try again.');
+     setSubmitting(false);
+     return;
+   }
 
-      // Always show the sent state regardless of the server response.
-      // The server never reveals whether an email exists.
-      setSent(true);
-    } catch {
-      toast.error('Could not reach the server. Check your connection.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
+   // Step 2: fetch separately.
+   try {
+     const payload = { ...formData, recaptchaToken };
+
+     await fetch('/api/auth/forgot-password', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(payload),
+     });
+
+     setSent(true);
+   } catch {
+     toast.error('Could not reach the server. Check your connection.');
+   } finally {
+     setSubmitting(false);
+   }
+ }
 
   if (sent) {
     return (

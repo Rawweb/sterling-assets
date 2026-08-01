@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
 import { loginSchema } from '@/lib/validation';
 import { createSession, setPendingEmail } from '@/lib/session';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 const DUMMY_HASH = '$2b$12$abcdefghijklmnopqrstuuWDlDPmZuGtaEYIvHTQyyBpNZ8p9L6';
-
 const INVALID = 'Invalid email or password';
 
 export async function POST(req: NextRequest) {
@@ -14,6 +14,18 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  // Verify reCAPTCHA before any database work.
+  const recaptchaToken = (body as Record<string, unknown>).recaptchaToken;
+  if (
+    typeof recaptchaToken !== 'string' ||
+    !(await verifyRecaptcha(recaptchaToken))
+  ) {
+    return Response.json(
+      { error: 'Security check failed. Please try again.' },
+      { status: 400 },
+    );
   }
 
   const result = loginSchema.safeParse(body);

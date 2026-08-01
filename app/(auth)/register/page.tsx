@@ -1,10 +1,10 @@
-// app/(auth)/register/page.tsx
 'use client';
 
 import { ArrowRight, Mail, Phone, Ticket, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const [country, setCountry] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -21,15 +22,29 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
     setSubmitting(true);
     setFormError('');
     setFieldErrors({});
 
-    // Grab every input that has a `name`, turn it into a plain object.
-    const payload = Object.fromEntries(new FormData(e.currentTarget));
+    if (!executeRecaptcha) {
+      setFormError('Security check not ready. Please try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    let recaptchaToken = '';
+    try {
+      recaptchaToken = await executeRecaptcha('register');
+    } catch {
+      setFormError('Security check failed. Please refresh and try again.');
+      setSubmitting(false);
+      return;
+    }
 
     try {
+      const payload = { ...formData, recaptchaToken };
+
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,7 +55,7 @@ export default function RegisterPage() {
 
       if (res.ok) {
         toast.success('Account created! Check your email to verify.');
-        router.push('/verify-email');
+        router.replace('/verify-email');
         return;
       }
 

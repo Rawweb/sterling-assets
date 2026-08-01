@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
+import RecaptchaProvider from '@/components/RecaptchaProvider';
 
 const display = Space_Grotesk({
   variable: '--font-display',
@@ -45,9 +46,11 @@ export default function RootLayout({
       lang='en'
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className='min-h-full flex flex-col'>
-        {children}
-        <Toaster position='top-right' richColors duration={4000} />
+      <body className='flex min-h-full flex-col'>
+        <RecaptchaProvider>
+          {children}
+          <Toaster position='top-right' richColors duration={4000} />
+        </RecaptchaProvider>
       </body>
     </html>
   );

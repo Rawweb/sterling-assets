@@ -4,9 +4,10 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { registerSchema } from '@/lib/validation';
 import { createVerificationToken } from '@/lib/token';
-import {  sendVerificationEmail } from '@/lib/mail';
+import { sendVerificationEmail } from '@/lib/mail';
 import { setPendingEmail } from '@/lib/session';
 import { generateReferralCode } from '@/lib/referral';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -14,6 +15,18 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  // Verify reCAPTCHA before touching the database.
+  const recaptchaToken = (body as Record<string, unknown>).recaptchaToken;
+  if (
+    typeof recaptchaToken !== 'string' ||
+    !(await verifyRecaptcha(recaptchaToken))
+  ) {
+    return Response.json(
+      { error: 'Security check failed. Please try again.' },
+      { status: 400 },
+    );
   }
 
   const result = registerSchema.safeParse(body);
@@ -43,11 +56,8 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-
-    // this user's own unique code
     const referralCode = await generateReferralCode();
 
-    // resolve the entered referral code to a referrer id, if valid
     let referredBy: string | null = null;
     if (referral) {
       const referrer = await prisma.user.findUnique({
