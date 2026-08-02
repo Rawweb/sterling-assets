@@ -1,13 +1,14 @@
-import HomeHero from "@/components/public/HomeHero";
+import HomeHero from '@/components/public/HomeHero';
+import HowItWorks from '@/components/public/HowItWorksSection';
 
 export default function HomePage() {
   return (
     <>
       {/* 1. Hero */}
-      <HomeHero/>
+      <HomeHero />
 
       {/* 2. How It Works */}
-      <section>...</section>
+      <HowItWorks />
 
       {/* 3. Industry Sectors */}
       <section>...</section>
