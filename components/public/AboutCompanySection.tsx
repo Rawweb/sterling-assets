@@ -71,7 +71,7 @@ export default function AboutCompanySection() {
                 Sterling Assets Holdings is a Luxembourg-based investment
                 powerhouse founded in 2015 with the mission to transform
                 industries and create sustainable value. With a strategic focus
-                on banking, cryptocurrency, agriculture, and real estate, we
+                on banking, steel, agriculture, and real estate, we
                 provide innovative investment solutions that drive growth,
                 foster innovation, and positively impact communities. Our
                 commitment lies in empowering businesses and individuals by

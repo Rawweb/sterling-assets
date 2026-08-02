@@ -9,7 +9,7 @@ import Logo from '@/components/Logo';
 // ---------- static data ----------
 
 const SECTORS = [
-  { label: 'Cryptocurrency', slug: 'crypto' },
+  { label: 'Steel', slug: 'steel' },
   { label: 'Banking', slug: 'banking' },
   { label: 'Real Estate', slug: 'real-estate' },
   { label: 'Agriculture', slug: 'agriculture' },
@@ -155,15 +155,17 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
             </div>
 
             {/* Remaining links */}
-            {NAV_LINKS.filter((l) => l.href !== '/').map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`${linkBase} ${isActive(link.href) ? linkOn : linkIdle}`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.filter((l) => l.href !== '/' && l.href !== '/about').map(
+              (link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${linkBase} ${isActive(link.href) ? linkOn : linkIdle}`}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           {/* ---- right side ---- */}
@@ -273,7 +275,7 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
               </div>
 
               {/* Remaining links */}
-              {NAV_LINKS.filter((l) => l.href !== '/').map((link) => (
+              {NAV_LINKS.filter((l) => l.href !== '/' && l.href !== '/about').map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

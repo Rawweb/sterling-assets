@@ -32,7 +32,7 @@ export default function PublicFooter() {
           <div>
             <Logo withWordmark onDark size={36} />
             <p className='mt-3.5 text-[13px] leading-[1.7] text-white/45'>
-              A trusted crypto investment platform making digital asset
+              A trusted investment platform making digital asset
               investing accessible, transparent, and profitable.
             </p>
             <div className='flex gap-2 mt-4'>

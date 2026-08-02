@@ -11,10 +11,10 @@ import Reveal from '@/components/public/Reveal';
 
 const SECTORS = [
   {
-    slug: 'crypto',
+    slug: 'steel',
     icon: Bitcoin,
-    title: 'Cryptocurrency',
-    desc: 'Blockchain and digital asset investments driving the future of finance.',
+    title: 'Steel',
+    desc: 'Investments in the steel industry driving infrastructure development.',
   },
   {
     slug: 'banking',
