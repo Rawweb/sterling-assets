@@ -1,4 +1,3 @@
-// components/auth/AuthSplit.tsx
 import Logo from '@/components/Logo';
 import { CheckCircle2 } from 'lucide-react';
 

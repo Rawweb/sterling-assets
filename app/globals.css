@@ -47,6 +47,11 @@
   }
 }
 
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image:         linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);

@@ -1,4 +1,3 @@
-// components/auth/Field.tsx
 import { LucideIcon } from 'lucide-react';
 import { ReactNode } from 'react';
 
