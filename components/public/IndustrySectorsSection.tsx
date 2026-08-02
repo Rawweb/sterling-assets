@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {
-  Bitcoin,
+  Factory,
   Building2,
   ChevronRight,
   Home as HomeIcon,
@@ -12,7 +12,7 @@ import Reveal from '@/components/public/Reveal';
 const SECTORS = [
   {
     slug: 'steel',
-    icon: Bitcoin,
+    icon: Factory,
     title: 'Steel',
     desc: 'Investments in the steel industry driving infrastructure development.',
   },

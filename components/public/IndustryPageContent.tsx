@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {
-  Bitcoin,
+  Factory,
   Building2,
   ChevronRight,
   Home as HomeIcon,
@@ -20,7 +20,7 @@ import type { IndustryData } from '@/lib/industry-data';
  */
 
 const SECTORS = [
-  { slug: 'steel', icon: Bitcoin, title: 'Steel' },
+  { slug: 'steel', icon: Factory, title: 'Steel' },
   { slug: 'banking', icon: Building2, title: 'Banking' },
   { slug: 'real-estate', icon: HomeIcon, title: 'Real Estate' },
   { slug: 'agriculture', icon: Sprout, title: 'Agriculture' },

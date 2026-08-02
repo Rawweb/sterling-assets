@@ -22,67 +22,67 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
   steel: {
     slug: 'steel',
     title: 'Steel',
-    heading: 'Steel: The Foundation of Modern Infrastructure',
-    img: '/images/steel.jpg',
+    heading: 'Steel: The Backbone of Global Industry',
+    img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=900&q=80',
     body: [
-      'Steel is the backbone of modern infrastructure, used in everything from skyscrapers to automobiles. At Sterling Assets Holdings, we invest in the steel industry, recognizing its critical role in economic development and growth.',
-      'Our approach combines a deep understanding of the steel market with a commitment to sustainable practices, ensuring long-term value for our investors.',
+      'Steel is a fundamental raw material in various sectors worldwide, from construction to automotive manufacturing, making it a critical driver of global economic activity. At Sterling Assets Holdings, investing in steel offers a stable, tangible, and high-demand asset class backed by real industrial need.',
+      'With rising global infrastructure spending, the push for sustainable manufacturing, and growing demand from emerging economies, steel represents one of the most compelling long-term investment opportunities available today.',
     ],
     approachTitle: 'Steel as a Form of Investment',
     approaches: [
       {
-        title: 'Direct Steel Production',
-        desc: 'Sterling Assets Holdings invests in steel production facilities, gaining exposure to the fundamental drivers of the industry. This approach provides steady returns through the cyclical nature of steel demand.',
+        title: 'Equity Investments in Steel Companies',
+        desc: 'Sterling Assets Holdings invests in publicly traded steel companies by purchasing stocks. These companies often offer dividends and the potential for capital appreciation, especially as global demand for steel rises in emerging and industrialised economies.',
       },
       {
-        title: 'DeFi and Yield Generation',
-        desc: 'Decentralised finance protocols offer opportunities for passive income through staking, liquidity provision, and yield farming. We carefully assess protocol security and returns to identify the best opportunities for our investors.',
+        title: 'Infrastructure and Steel Projects',
+        desc: 'Direct investment in infrastructure projects such as the construction of buildings, bridges, and roads requires large volumes of steel. Sterling partners with firms to fund large-scale projects, ensuring a return on investment while contributing to global infrastructure development.',
       },
       {
-        title: 'Blockchain Infrastructure',
-        desc: 'Investment in the foundational infrastructure of the blockchain ecosystem — including mining operations, node networks, and Layer 2 scaling solutions — positions our portfolio at the core of long-term digital asset growth.',
+        title: 'Steel Futures and Commodities',
+        desc: 'The steel market is accessible for investment through futures contracts and commodities markets. These financial instruments allow Sterling to hedge risks, profit from price fluctuations, and diversify its portfolio by gaining exposure to global steel prices.',
       },
       {
-        title: 'Steel Venture Capital',
-        desc: 'Early-stage investment in steel-related startups and innovative technologies offers significant upside potential. We evaluate teams, technology, and market timing to identify the next generation of leading steel companies.',
+        title: 'Private Equity and Joint Ventures',
+        desc: 'Investing in private steel companies or forming joint ventures with steel producers offers significant potential for growth. Sterling injects capital into steel manufacturing companies or new technologies such as sustainable steel production or recycling initiatives.',
       },
       {
-        title: 'Digital Asset Portfolio Management',
-        desc: 'A diversified approach across multiple asset classes within the steel ecosystem reduces concentration risk while capturing growth across different segments of the market simultaneously.',
+        title: 'Sustainable Steel Investment',
+        desc: 'With the growing emphasis on sustainability, Sterling focuses investments on green steel production, which uses alternative methods to reduce carbon emissions. Supporting companies committed to eco-friendly practices aligns with global sustainability goals and future market trends.',
       },
     ],
-    reasonsTitle: 'Why Steel is a Strategic Focus for Sterling',
+    reasonsTitle: 'Why Steel is a Strategic Investment Focus for Sterling',
     reasons: [
       {
-        title: 'Explosive Growth Potential',
-        desc: 'The steel market has historically offered returns that far exceed traditional asset classes, attracting institutional and retail investors at a rapidly growing pace.',
+        title: 'Global Demand',
+        desc: 'Steel is a critical input in construction, automotive, and energy industries. Demand is expected to remain strong, especially in emerging markets, driving long-term investment profitability across multiple sectors.',
       },
       {
-        title: 'Portfolio Diversification',
-        desc: 'Digital assets have a low correlation with traditional markets, making them a powerful tool for reducing overall portfolio risk and improving risk-adjusted returns.',
+        title: 'Innovation and Sustainability',
+        desc: 'The push for cleaner production methods and sustainable steel manufacturing creates new opportunities for investment in green technologies and innovations aligned with global environmental goals.',
       },
       {
-        title: '24/7 Market Access',
-        desc: 'Unlike traditional exchanges, steel markets operate around the clock, giving Sterling flexible entry and exit opportunities at any time of day or night.',
+        title: 'Stable Returns',
+        desc: 'The steel industry is cyclical but tends to offer stable returns over the long term as infrastructure projects and industrial development continue to expand across global markets.',
       },
       {
-        title: 'Borderless Transactions',
-        desc: 'Steel removes geographical barriers, enabling global investment flows with minimal friction, low transaction costs, and no reliance on intermediaries.',
+        title: 'Diversification and Risk Mitigation',
+        desc: 'By investing in the steel industry, Sterling diversifies its portfolio, gaining exposure to a key industrial sector that is essential to global economic activity and infrastructure development.',
       },
       {
-        title: 'Growing Institutional Adoption',
-        desc: 'Major financial institutions, governments, and corporations are increasing steel exposure, reinforcing the long-term legitimacy and stability of the asset class.',
+        title: 'Strategic Advantage',
+        desc: "Luxembourg's position as a steel manufacturing hub with access to European and global markets presents Sterling with unique opportunities for strategic investments in the region's steel industry.",
       },
     ],
     closing:
-      'By investing in the steel sector, Sterling Assets Holdings positions itself at the frontier of the global economic revolution; capturing growth while managing risk through a disciplined, diversified strategy.',
+      'By investing in the steel sector, Sterling Assets Holdings positions itself at the heart of the global industrial economy, capturing long-term growth while managing risk through a disciplined, diversified strategy.',
   },
 
   banking: {
     slug: 'banking',
     title: 'Banking',
     heading: 'Banking: A Pillar of Economic Growth',
-    img: '/images/banking.jpg',
+    img: 'https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=900&q=80',
     body: [
       'The banking industry is a cornerstone of global economic activity, serving as the backbone for financial stability and growth. It facilitates the flow of capital between savers and borrowers and provides essential financial services to individuals and businesses on every continent.',
       'Sterling Assets Holdings partners with financial institutions and invests in banking infrastructure, capturing steady returns from one of the most regulated and stable sectors in the global economy.',
@@ -133,7 +133,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'real-estate',
     title: 'Real Estate',
     heading: 'Real Estate: Stable, Tangible, Profitable',
-    img: '/images/real-estate.jpg',
+    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=80',
     body: [
       'The real estate industry is a stable and profitable investment sector encompassing residential, commercial, and industrial properties. It offers capital appreciation, steady cash flow, and meaningful portfolio diversification for long-term investors across economic cycles.',
       'Sterling Assets Holdings invests in high-growth real estate opportunities across emerging and established markets, delivering consistent returns while addressing global trends like urbanisation and sustainable development.',
@@ -190,7 +190,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'agriculture',
     title: 'Agriculture',
     heading: 'Agriculture: Feeding Growth and Returns',
-    img: '/images/agriculture.jpg',
+    img: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=900&q=80',
     body: [
       'Agriculture remains a critical industry for global food security and rural development. With rising global demand and the adoption of modern farming techniques, the sector offers resilient, long-term investment potential that holds value across economic cycles.',
       'Sterling Assets Holdings supports modern farming practices, eco-friendly technologies, and supply chain improvements to promote sustainability and resilience in the agricultural sector.',
@@ -222,7 +222,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     reasons: [
       {
         title: 'Rising Global Demand',
-        desc: 'With the world population expected to exceed 9 billion by 2050, agriculture plays a critical role in ensuring global food security, driving long-term investment profitability.',
+        desc: 'With the world population expected to exceed 9 billion by 2050, agriculture plays a critical role in ensuring global food security, driving long-term investment profitability across the sector.',
       },
       {
         title: 'Sustainability and Eco-Friendly Practices',
@@ -230,7 +230,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
       },
       {
         title: 'Technological Advancements',
-        desc: 'The agricultural sector continues to adopt cutting-edge technologies — from AI-powered farming tools to climate-resilient crop varieties — creating significant new investment opportunities.',
+        desc: 'The agricultural sector continues to adopt cutting-edge technologies from AI-powered farming tools to climate-resilient crop varieties, creating significant new investment opportunities.',
       },
       {
         title: 'Stability and Long-Term Returns',
@@ -242,7 +242,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
       },
     ],
     closing:
-      'For Sterling Assets Holdings, agriculture is more than just an investment opportunity; it is a sector that offers long-term value, stability, and alignment with global sustainability efforts, creating lasting impact for investors and communities alike.',
+      'For Sterling Assets Holdings, agriculture is more than just an investment opportunity. It is a sector that offers long-term value, stability, and alignment with global sustainability efforts, creating lasting impact for investors and communities alike.',
   },
 };
 
