@@ -31,9 +31,9 @@ export default function HowItWorksSection() {
       <Container>
         {/* ---- section head ---- */}
         <div className='text-center max-w-[480px] mx-auto mb-12 space-y-3'>
-          <div className='bg-primary/10 text-primary text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 w-fit mx-auto'>
+          <span className='bg-primary/10 text-primary text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 w-fit mx-auto'>
             How it works
-          </div>
+          </span>
           <p className='text-xl md:text-2xl text-navy font-bold'>
             Three steps to start earning
           </p>
@@ -49,7 +49,7 @@ export default function HowItWorksSection() {
             <Fragment key={step.n}>
               {/* Arrow between steps — desktop only, hidden on mobile */}
               {idx > 0 && (
-                <div className='hidden md:flex items-center justify-center flex-shrink-0 self-start pt-12 text-line'>
+                <div className='hidden md:flex items-center justify-center flex-shrink-0 self-start pt-12 text-primary'>
                   <ChevronRight size={22} />
                 </div>
               )}
