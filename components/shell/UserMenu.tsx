@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { User, ChevronDown, LogOut, UserCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 
 export default function UserMenu({
   fullName,
@@ -14,6 +16,7 @@ export default function UserMenu({
   avatarUrl?: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter()
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -38,6 +41,12 @@ export default function UserMenu({
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [open]);
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.refresh();
+    router.replace('/login');
+  }
 
   const itemClass =
     'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-text transition-colors hover:bg-bg active:bg-line/50';
@@ -95,16 +104,15 @@ export default function UserMenu({
             </>
           )}
 
-          <form action='/api/auth/logout' method='post'>
-            <button
-              role='menuitem'
-              type='submit'
-              className='flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-down transition-colors hover:bg-down/10 active:bg-down/20'
-            >
-              <LogOut size={16} />
-              Log out
-            </button>
-          </form>
+          <button
+            role='menuitem'
+            type='button'
+            onClick={handleLogout}
+            className='flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-down transition-colors hover:bg-down/10 active:bg-down/20'
+          >
+            <LogOut size={16} />
+            Log out
+          </button>
         </div>
       )}
     </div>

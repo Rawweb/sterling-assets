@@ -52,6 +52,7 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
   // ---- scroll listener ----
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
+    setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
   }, []);

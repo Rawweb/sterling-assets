@@ -10,6 +10,7 @@ import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import CountrySelect from '@/components/auth/CountrySelect';
 import { toast } from 'sonner';
+import Logo from '@/components/Logo';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -76,6 +77,11 @@ export default function RegisterPage() {
     <AuthSplit>
       <div className='flex flex-col gap-4 rounded-xl border border-primary/30 p-8 shadow-lg md:border-0 md:p-0 md:shadow-none'>
         <div className='mb-2 text-center'>
+          <div className='flex justify-center mb-3 md:hidden'>
+            <Link href='/'>
+              <Logo withWordmark size={36} />
+            </Link>
+          </div>
           <h1 className='text-3xl font-bold'>Create account</h1>
           <p className='mt-1 text-sm text-muted'>It only takes a minute</p>
         </div>

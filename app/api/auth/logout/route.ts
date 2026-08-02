@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
 import { destroySession } from '@/lib/session';
 
 export async function POST() {
   await destroySession();
-  redirect('/login');
+  return new Response(null, { status: 204 });
 }

@@ -3,12 +3,17 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /**
- * Sterling Assets Holdings — first-visit logo preloader.
- * Shows a draw-in SVG animation on the first page load only.
- * sessionStorage flag `sah-preloaded` prevents re-showing on navigation.
- * Respects prefers-reduced-motion: logo appears instantly, text is visible,
- * and the overlay dismisses after 400ms instead of 2.2s.
+ * Sterling Assets Holdings — logo preloader.
+ * Shows a draw-in SVG animation on every full page load / refresh.
+ * The module-level `hasShown` flag prevents re-showing during client-side
+ * navigation (the module stays alive in memory), but resets on a hard refresh
+ * because the browser re-evaluates the module from scratch.
+ * Respects prefers-reduced-motion: logo appears instantly and dismisses after 400ms.
  */
+
+// Lives outside the component so it persists across re-renders and
+// client-side navigations, but resets on a full page refresh.
+let hasShown = false;
 
 const VIEWBOX = '0 0 848.000000 915.000000';
 const TRANSFORM = 'translate(0.000000,915.000000) scale(0.100000,-0.100000)';
@@ -64,21 +69,13 @@ export default function LogoPreloader() {
     // Wait for the fade-out transition before unmounting.
     setTimeout(() => {
       setShow(false);
-      try {
-        sessionStorage.setItem('sah-preloaded', '1');
-      } catch {
-        /* private mode */
-      }
     }, 520);
   }, []);
 
   useEffect(() => {
-    // Skip if the user has already seen the preloader this session.
-    try {
-      if (sessionStorage.getItem('sah-preloaded')) return;
-    } catch {
-      /* private mode */
-    }
+    // Already shown this page load — skip on client-side navigation.
+    if (hasShown) return;
+    hasShown = true;
 
     setShow(true);
 
@@ -91,6 +88,7 @@ export default function LogoPreloader() {
     return () => clearTimeout(timer);
   }, [dismiss]);
 
+  // Nothing to render until the effect triggers show.
   if (!show) return null;
 
   return (
@@ -130,7 +128,8 @@ export default function LogoPreloader() {
           </linearGradient>
         </defs>
         <g transform={TRANSFORM}>
-          {/* pathLength="1" normalises the path so dasharray/dashoffset work regardless of absolute path length. */}
+          {/* pathLength="1" normalises the path so dasharray/dashoffset work
+              regardless of the absolute path length. */}
           <path className='sap-path' pathLength={1} d={LOGO_PATH} />
         </g>
       </svg>

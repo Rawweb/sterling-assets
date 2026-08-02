@@ -1,5 +1,6 @@
 import Logo from '@/components/Logo';
 import { CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
 const POINTS = [
   'Bank-level encryption on every login',

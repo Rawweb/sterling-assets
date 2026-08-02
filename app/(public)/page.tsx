@@ -1,20 +1,31 @@
+import HomeHero from "@/components/public/HomeHero";
 
 export default function HomePage() {
   return (
-    <div
-      className='min-h-screen flex flex-col items-center justify-center gap-4 text-center px-6'
-      style={{ paddingTop: 150, paddingBottom: 80 }}
-    >
-      <h1
-        className='text-navy text-4xl font-bold'
-        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-      >
-        Shell is working.
-      </h1>
-      <p className='text-muted text-base max-w-md leading-relaxed'>
-        Navbar, footer, and preloader are live. Replace this file with the full
-        home page in the next step.
-      </p>
-    </div>
+    <>
+      {/* 1. Hero */}
+      <HomeHero/>
+
+      {/* 2. How It Works */}
+      <section>...</section>
+
+      {/* 3. Industry Sectors */}
+      <section>...</section>
+
+      {/* 4. Stats strip (dark navy, NOT a section with max-width wrapper) */}
+      <div>...</div>
+
+      {/* 5. What Sets Us Apart */}
+      <section>...</section>
+
+      {/* 6. Trusted By marquee */}
+      <div>...</div>
+
+      {/* 7. Testimonials */}
+      <section>...</section>
+
+      {/* 8. CTA strip (dark navy) */}
+      <section>...</section>
+    </>
   );
 }

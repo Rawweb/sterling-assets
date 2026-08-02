@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { toast } from 'sonner';
+import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         toast.success('Welcome back!');
+        router.refresh(); // refresh the app shell (navbar, etc.) to reflect the new auth state 
         router.replace(data.role === 'ADMIN' ? '/admin' : '/dashboard');
         return;
       }
@@ -77,6 +79,11 @@ export default function LoginPage() {
     <AuthSplit>
       <div className='flex flex-col gap-4 rounded-xl border border-primary/30 p-8 shadow-lg md:border-0 md:p-0 md:shadow-none'>
         <div className='mb-2 text-center'>
+          <div className='flex justify-center mb-3 md:hidden'>
+            <Link href='/'>
+              <Logo withWordmark size={36} />
+            </Link>
+          </div>
           <h1 className='text-3xl font-bold'>Sign in</h1>
           <p className='mt-1 text-sm text-muted'>
             Enter your details to continue
