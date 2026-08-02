@@ -15,8 +15,7 @@ type Props = {
  * The 140px top padding accounts for the fixed navbar height (64px) plus
  * breathing room. The 70px bottom padding gives visual weight below the text.
  */
-const BANNER_URL =
-  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&q=80';
+const BANNER_URL = '/images/page-hero-banner.jpg';
 
 export default function PageHeroBanner({ title, crumb }: Props) {
   return (

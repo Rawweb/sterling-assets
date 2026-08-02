@@ -44,7 +44,7 @@ export default function WhatSetsUsApartSection() {
             Our advantage
           </div>
           <p className='text-xl md:text-2xl text-navy font-bold'>
-            What sets Sterling apart
+            What sets Sterling Assets apart
           </p>
           <p className='text-muted text-sm md:text-base leading-relaxed'>
             Built for security, transparency, and consistent returns.
