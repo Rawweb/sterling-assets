@@ -46,9 +46,9 @@ export default function IndustrySectorsSection() {
       <Container>
         {/* ---- section head ---- */}
         <div className='text-center max-w-[480px] mx-auto mb-12 space-y-3'>
-          <span className='bg-gold/15 text-gold text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 border-gold'>
+          <div className='bg-gold/15 text-gold text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 border-gold w-fit mx-auto'>
             Our sectors
-          </span>
+          </div>
           <p className='text-xl md:text-2xl text-on-navy font-bold'>
             Where your money works
           </p>

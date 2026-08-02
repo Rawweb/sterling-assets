@@ -40,9 +40,9 @@ export default function WhatSetsUsApartSection() {
       <Container>
         {/* ---- section head ---- */}
         <div className='text-center max-w-[480px] mx-auto mb-12 space-y-3'>
-          <span className='bg-primary/10 text-primary text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3'>
+          <div className='bg-primary/10 text-primary text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 w-fit mx-auto'>
             Our advantage
-          </span>
+          </div>
           <p className='text-xl md:text-2xl text-navy font-bold'>
             What sets Sterling apart
           </p>
