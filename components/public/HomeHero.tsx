@@ -1,52 +1,133 @@
 'use client';
 
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+
+const IMAGES = [
+  '/images/hero-bg-7.jpg',
+  '/images/hero-bg-4.jpg',
+  '/images/hero-bg-10.jpg',
+];
+
+// Three angles of the value proposition, cycling on the second heading line.
+const PHRASES = [
+  'Earn daily returns.',
+  'Build lasting wealth.',
+  'Grow with confidence.',
+];
+
+// Lighter gradient so the image reads through more clearly.
+const OVERLAY = 'linear-gradient(rgba(15,27,45,.50), rgba(15,27,45,.65))';
 
 export default function HomeHero() {
+  // ---- image cycling ----
+  const [imgIdx, setImgIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setImgIdx((i) => (i + 1) % IMAGES.length),
+      6000, // 6 seconds per image
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  // ---- typewriter ----
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const full = PHRASES[phraseIdx];
+
+    // Pause at the end of a completed phrase, then start erasing.
+    if (!isDeleting && displayed === full) {
+      const pause = setTimeout(() => setIsDeleting(true), 2000);
+      return () => clearTimeout(pause);
+    }
+
+    // When fully erased, advance to the next phrase.
+    if (isDeleting && displayed === '') {
+      setIsDeleting(false);
+      setPhraseIdx((i) => (i + 1) % PHRASES.length);
+      return;
+    }
+
+    // Type forward at 80ms per character, erase at 40ms.
+    const speed = isDeleting ? 40 : 80;
+    const id = setTimeout(() => {
+      setDisplayed((prev) =>
+        isDeleting ? prev.slice(0, -1) : full.slice(0, prev.length + 1),
+      );
+    }, speed);
+
+    return () => clearTimeout(id);
+  }, [displayed, isDeleting, phraseIdx]);
+
   return (
-    <section
-      style={{
-        backgroundImage: `linear-gradient(rgba(15,27,45,.55), rgba(15,27,45,.70)), url("/images/hero-bg-10.jpg")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-      className='px-5 pt-[120px] pb-[70px] lg:px-6 lg:pt-[150px] lg:pb-[90px] text-center'
-    >
-      <div className='max-w-[640px] mx-auto'>
-        {/* Badge */}
-        <div className='inline-flex items-center gap-1.5 bg-gold/15 text-gold text-xs font-semibold px-4 py-1.5 rounded-full mb-5 tracking-[0.3px]'>
-          <ShieldCheck size={13} />
-          Secure crypto investments
-        </div>
+    <section className='relative overflow-hidden text-center'>
+      {/* ---- crossfading background images ---- */}
+      {IMAGES.map((src, i) => (
+        <div
+          key={src}
+          aria-hidden='true'
+          className='absolute inset-0 z-0'
+          style={{
+            backgroundImage: `${OVERLAY}, url(${src})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: i === imgIdx ? 1 : 0,
+            transition: 'opacity 1.2s ease',
+          }}
+        />
+      ))}
 
-        {/* Heading */}
-        <h1 className='text-on-navy text-xs sm:text-[34px] lg:text-[44px] font-bold leading-[1.15] mb-4'>
-          Invest smarter.
-          <br />
-          <span className='text-gold'>Earn daily returns.</span>
-        </h1>
+      {/* ---- content ---- */}
+      <div className='relative z-10 px-5 pt-[120px] pb-[70px] lg:pt-[150px] lg:pb-[90px]'>
+        <div className='max-w-[640px] mx-auto'>
+          {/* Badge */}
+          <div className='inline-flex items-center gap-1.5 bg-gold/15 text-gold text-xs font-semibold px-4 py-1.5 rounded-full mb-5 tracking-[0.3px]'>
+            <ShieldCheck size={13} />
+            Secure investments
+          </div>
 
-        {/* Subheading */}
-        <p className='text-on-navy/70 text-xs sm:text-[14px] lg:text-[16px] leading-relaxed max-w-[480px] mx-auto mb-7'>
-          Sterling Assets Holdings makes digital asset investing accessible,
-          transparent, and profitable. Start with as little as $100.
-        </p>
+          {/* Heading */}
+          <h1 className='text-on-navy text-[28px] sm:text-[34px] lg:text-[44px] font-bold leading-[1.15] mb-4'>
+            Invest smarter.
+            <br />
+            <span className='text-gold'>
+              {displayed}
+              {/* Blinking cursor — always visible so the line never collapses. */}
+              <span
+                aria-hidden='true'
+                className='animate-pulse text-on-navy/60'
+              >
+                |
+              </span>
+            </span>
+          </h1>
 
-        {/* CTAs */}
-        <div className='flex items-center justify-center gap-3 flex-wrap'>
-          <Link
-            href='/plans'
-            className='inline-flex items-center gap-2 bg-primary hover:bg-primary-press text-on-navy font-semibold text-sm px-[22px] py-[11px] rounded-[10px] transition-colors duration-150 no-underline active:scale-[0.97]'
-          >
-            Start investing <ArrowRight size={16} />
-          </Link>
-          <Link
-            href='/plans'
-            className='inline-flex items-center text-on-navy text-sm font-semibold px-[22px] py-[11px] rounded-[10px] border border-on-navy/25 hover:bg-on-navy/[0.08] transition-all duration-150 no-underline'
-          >
-            View plans
-          </Link>
+          {/* Subheading */}
+          <p className='text-on-navy/70 text-sm lg:text-base leading-relaxed max-w-[480px] mx-auto mb-7'>
+            Sterling Assets Holdings makes digital asset investing accessible,
+            transparent, and profitable. Start with as little as $100.
+          </p>
+
+          {/* CTAs */}
+          <div className='flex items-center justify-center gap-3 flex-wrap'>
+            <Link
+              href='/register'
+              className='inline-flex items-center gap-2 bg-primary hover:bg-primary-press text-on-navy text-sm font-semibold px-[22px] py-[11px] rounded-[10px] transition-colors duration-150 no-underline active:scale-[0.97]'
+            >
+              Join us
+            </Link>
+            <Link
+              href='/plans'
+              className='inline-flex items-center gap-2 text-on-navy text-sm font-semibold px-[22px] py-[11px] rounded-[10px] border border-on-navy/25 hover:bg-on-navy/[0.08] transition-all duration-150 no-underline'
+            >
+              Start investing <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
       </div>
     </section>
