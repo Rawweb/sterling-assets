@@ -7,6 +7,7 @@ import Sidebar from '@/components/shell/Sidebar';
 import { getViewer } from '@/lib/viewer';
 import { getSummary } from '@/lib/ledger';
 import { getUnreadCount } from '@/lib/notifications';
+import LanguageSwitcher from '@/components/public/LanguageSwitcher';
 
 export default async function Topbar() {
   const viewer = await getViewer();
@@ -34,6 +35,7 @@ export default async function Topbar() {
       <div className='min-w-0 flex-1'>
         <div className='mx-auto flex h-full w-full items-center justify-end px-4 sm:px-[22px]'>
           <div className='flex items-center gap-2.5'>
+            <LanguageSwitcher variant='nav' />
             <Link
               href='/dashboard/notifications'
               aria-label='Notifications'

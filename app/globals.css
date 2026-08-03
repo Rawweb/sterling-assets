@@ -78,3 +78,14 @@ a,
     var(--color-navy-500)
   );
 }
+
+/* ---- Google Translate overrides ---- */
+/* Hide the injected toolbar and widget; LanguageSwitcher handles the UI. */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+.skiptranslate { display: none !important; }
+#goog-gt-tt,
+.goog-te-balloon-frame { display: none !important; }
+.goog-te-gadget { display: none !important; }
+body { top: 0px !important; }
+

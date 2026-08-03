@@ -9,7 +9,7 @@ const schema = z.object({
   phone: z.string().optional(),
   subject: z.string().min(2, 'Subject is too short'),
   message: z.string().min(10, 'Message is too short'),
-  recaptchaToken: z.string(),
+  recaptchaToken: z.string().optional().default(''),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,12 +26,14 @@ export async function POST(req: NextRequest) {
   const { name, email, phone, subject, message, recaptchaToken } = parsed.data;
 
   // Verify reCAPTCHA before doing anything else.
-  const captchaOk = await verifyRecaptcha(recaptchaToken);
-  if (!captchaOk) {
-    return Response.json(
-      { error: 'Security check failed. Please try again.' },
-      { status: 403 },
-    );
+  if (recaptchaToken) {
+    const captchaOk = await verifyRecaptcha(recaptchaToken);
+    if (!captchaOk) {
+      return Response.json(
+        { error: 'Security check failed. Please try again.' },
+        { status: 403 },
+      );
+    }
   }
 
   try {

@@ -3,6 +3,8 @@ import { Space_Grotesk, Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import RecaptchaProvider from '@/components/RecaptchaProvider';
+import Script from 'next/script';
+import GoogleTranslateFix from '@/components/GoogleTranslateFix';
 
 const display = Space_Grotesk({
   variable: '--font-display',
@@ -48,9 +50,27 @@ export default function RootLayout({
     >
       <body className='flex min-h-full flex-col'>
         <RecaptchaProvider>
+          <GoogleTranslateFix />
           {children}
           <Toaster position='top-right' richColors duration={4000} />
         </RecaptchaProvider>
+
+        {/* Hidden Google Translate mount point */}
+        <div id='google_translate_element' style={{ display: 'none' }} />
+
+        {/* Initialise Google Translate — runs after page is interactive */}
+        <Script id='gt-init' strategy='afterInteractive'>{`
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      autoDisplay: false
+    }, 'google_translate_element');
+  }
+`}</Script>
+        <Script
+          src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
+          strategy='afterInteractive'
+        />
       </body>
     </html>
   );

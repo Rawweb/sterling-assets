@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 import Logo from '@/components/Logo';
+import LanguageSwitcher from '@/components/public/LanguageSwitcher';
 
 // ---------- static data ----------
 
@@ -170,6 +171,7 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
 
           {/* ---- right side ---- */}
           <div className='flex items-center gap-2.5'>
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <Link
                 href={dashHref}
@@ -275,7 +277,9 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
               </div>
 
               {/* Remaining links */}
-              {NAV_LINKS.filter((l) => l.href !== '/' && l.href !== '/about').map((link) => (
+              {NAV_LINKS.filter(
+                (l) => l.href !== '/' && l.href !== '/about',
+              ).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -288,6 +292,7 @@ export default function PublicNavbar({ isAuthenticated, userRole }: Props) {
 
             {/* Drawer auth buttons */}
             <div className='p-5 flex flex-col gap-2.5 shrink-0 border-t border-line'>
+              {/* <LanguageSwitcher variant='drawer' /> */}
               {isAuthenticated ? (
                 <Link
                   href={dashHref}
