@@ -11,6 +11,7 @@ import Container from '@/components/Container';
 import Reveal from '@/components/public/Reveal';
 import IndustryExtendedSection from '@/components/public/IndustryExtendedSection';
 import type { IndustryData } from '@/lib/industry-data';
+import Image from 'next/image';
 
 /**
  * All four industry pages share this template.
@@ -28,7 +29,7 @@ const SECTORS = [
 
 const HELP_BG = [
   'linear-gradient(rgba(15,27,45,.86), rgba(15,27,45,.88))',
-  'url(https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80)',
+  'url("/images/hero-bg-2.jpg")',
 ].join(', ');
 
 type Props = { data: IndustryData };
@@ -41,19 +42,20 @@ export default function IndustryPageContent({ data }: Props) {
       {/* ---- top grid: image + text | sticky sidebar ---- */}
       <section className='py-[70px]'>
         <Container>
-          <div className='grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-9 items-start'>
+          <div className='grid grid-cols-1 md:grid-cols-[1fr_320px] gap-9 items-start'>
             {/* Main content */}
             <div>
               <Reveal>
                 <div
-                  className='rounded-2xl overflow-hidden w-full mb-6'
+                  className='relative rounded-2xl overflow-hidden w-full mb-6'
                   style={{ aspectRatio: '16 / 10' }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={data.img}
                     alt={data.title}
-                    className='w-full h-full object-cover'
+                    fill
+                    className='object-cover'
+                    sizes='(max-width: 768px) 100vw, 60vw'
                   />
                 </div>
               </Reveal>

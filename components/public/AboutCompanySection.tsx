@@ -1,6 +1,7 @@
 import { Award, Download, Eye, FileText } from 'lucide-react';
 import Container from '@/components/Container';
 import Reveal from '@/components/public/Reveal';
+import Image from 'next/image';
 
 const CERTS = [
   {
@@ -30,12 +31,13 @@ export default function AboutCompanySection() {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center'>
           {/* ---- left: image ---- */}
           <Reveal className='space-y-5'>
-            <div className='rounded-2xl overflow-hidden aspect-[4/3] w-full'>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className='relative rounded-2xl overflow-hidden aspect-[4/3] w-full'>
+              <Image
                 src='/images/company.jpg'
                 alt='Sterling Assets Holdings'
-                className='w-full h-full object-cover'
+                fill
+                className='object-cover'
+                sizes='(max-width: 768px) 100vw, 60vw'
               />
             </div>
             <p className='text-muted text-sm md:text-base leading-relaxed hidden md:block'>

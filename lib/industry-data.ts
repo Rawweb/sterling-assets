@@ -23,7 +23,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'steel',
     title: 'Steel',
     heading: 'Steel: The Backbone of Global Industry',
-    img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=900&q=80',
+    img: '/images/steel.jpg',
     body: [
       'Steel is a fundamental raw material in various sectors worldwide, from construction to automotive manufacturing, making it a critical driver of global economic activity. At Sterling Assets Holdings, investing in steel offers a stable, tangible, and high-demand asset class backed by real industrial need.',
       'With rising global infrastructure spending, the push for sustainable manufacturing, and growing demand from emerging economies, steel represents one of the most compelling long-term investment opportunities available today.',
@@ -82,7 +82,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'banking',
     title: 'Banking',
     heading: 'Banking: A Pillar of Economic Growth',
-    img: 'https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=900&q=80',
+    img: '/images/banking.jpg',
     body: [
       'The banking industry is a cornerstone of global economic activity, serving as the backbone for financial stability and growth. It facilitates the flow of capital between savers and borrowers and provides essential financial services to individuals and businesses on every continent.',
       'Sterling Assets Holdings partners with financial institutions and invests in banking infrastructure, capturing steady returns from one of the most regulated and stable sectors in the global economy.',
@@ -133,7 +133,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'real-estate',
     title: 'Real Estate',
     heading: 'Real Estate: Stable, Tangible, Profitable',
-    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=80',
+    img: '/images/real-estate.jpg',
     body: [
       'The real estate industry is a stable and profitable investment sector encompassing residential, commercial, and industrial properties. It offers capital appreciation, steady cash flow, and meaningful portfolio diversification for long-term investors across economic cycles.',
       'Sterling Assets Holdings invests in high-growth real estate opportunities across emerging and established markets, delivering consistent returns while addressing global trends like urbanisation and sustainable development.',
@@ -190,7 +190,7 @@ export const INDUSTRY_DATA: Record<IndustrySlug, IndustryData> = {
     slug: 'agriculture',
     title: 'Agriculture',
     heading: 'Agriculture: Feeding Growth and Returns',
-    img: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=900&q=80',
+    img: '/images/agriculture.jpg',
     body: [
       'Agriculture remains a critical industry for global food security and rural development. With rising global demand and the adoption of modern farming techniques, the sector offers resilient, long-term investment potential that holds value across economic cycles.',
       'Sterling Assets Holdings supports modern farming practices, eco-friendly technologies, and supply chain improvements to promote sustainability and resilience in the agricultural sector.',

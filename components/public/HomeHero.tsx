@@ -76,8 +76,8 @@ export default function HomeHero() {
             backgroundImage: `${OVERLAY}, url(${src})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: i === imgIdx ? 1 : 0,
-            transition: 'opacity 1.2s ease',
+            transform: `translateX(${(i - imgIdx) * 100}%)`,
+            transition: 'transform 0.8s ease-in-out',
           }}
         />
       ))}

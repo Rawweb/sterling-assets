@@ -26,7 +26,7 @@ const STATS = [
     suffix: '+',
     label: 'Countries served',
   },
-  { icon: Layers, value: 6, prefix: '', suffix: '', label: 'Investment plans' },
+  { icon: Layers, value: 5, prefix: '', suffix: '', label: 'Investment plans' },
 ];
 
 // ---- count-up sub-component ----
