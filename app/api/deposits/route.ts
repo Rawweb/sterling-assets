@@ -36,7 +36,10 @@ export async function POST(req: Request) {
 
   // Validate it is a real R2 key from our upload flow,
   // not an arbitrary URL someone injected manually.
-  if (typeof proofUrl !== 'string' || !proofUrl.startsWith('deposits/')) {
+  if (
+    typeof proofUrl !== 'string' ||
+    !proofUrl.startsWith(`deposits/${user.id}/`)
+  ) {
     return NextResponse.json(
       { error: 'Proof of payment is required.' },
       { status: 400 },

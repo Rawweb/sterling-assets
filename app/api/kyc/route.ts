@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   // Validate R2 keys — must come from our upload flow, not injected URLs.
   if (
     typeof documentFrontUrl !== 'string' ||
-    !documentFrontUrl.startsWith('kyc/')
+    !documentFrontUrl.startsWith(`kyc/${user.id}/`)
   ) {
     return NextResponse.json(
       { error: 'Front document is required.' },
@@ -66,7 +66,8 @@ export async function POST(req: Request) {
   const needsBack = documentType !== 'passport';
   if (
     needsBack &&
-    (typeof documentBackUrl !== 'string' || !documentBackUrl.startsWith('kyc/'))
+    (typeof documentBackUrl !== 'string' ||
+      !documentBackUrl.startsWith(`kyc/${user.id}/`))
   ) {
     return NextResponse.json(
       { error: 'Back document is required.' },
