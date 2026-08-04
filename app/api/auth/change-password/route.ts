@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getCurrentUser } from '@/lib/session';
+import { getCurrentUser, revokeOtherSessions } from '@/lib/session';
 import { prisma } from '@/lib/db';
 
 export async function POST(req: Request) {
@@ -67,6 +67,8 @@ export async function POST(req: Request) {
     where: { id: user.id },
     data: { passwordHash: newHash },
   });
+
+  await revokeOtherSessions(user.id);
 
   return NextResponse.json({ updated: true }, { status: 200 });
 }

@@ -105,3 +105,16 @@ export async function clearPendingEmail() {
   const jar = await cookies();
   jar.delete(PENDING_COOKIE);
 }
+
+export async function revokeOtherSessions(userId: string): Promise<void> {
+  const jar = await cookies();
+  const token = jar.get(COOKIE_NAME)?.value;
+  const currentId = token ? hashToken(token) : null;
+
+  await prisma.session.deleteMany({
+    where: {
+      userId,
+      ...(currentId ? { id: { not: currentId } } : {}),
+    },
+  });
+}
