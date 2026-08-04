@@ -92,14 +92,29 @@ function backoffMs(n: number): number {
 
 // ---- IP extraction -------------------------------------------------------
 //
-// Render sits behind a proxy that sets x-forwarded-for.
-// Take the first (leftmost) IP — that is the real client address.
+// Cloudflare sits in front of this app (both the custom domain and the
+// default .onrender.com URL) and sets cf-connecting-ip from the real TCP
+// connection it received — verified empirically that Cloudflare rejects
+// (403) any inbound request that already carries this header itself, so
+// it cannot be spoofed by a client. Prefer it.
+//
+// Fallback (cf-connecting-ip absent — e.g. local dev, or some future path
+// that isn't fronted by Cloudflare): take the rightmost x-forwarded-for
+// entry, not the leftmost. XFF is built by each hop appending the address
+// it received the request from, and the client controls whatever is
+// already in the header when it makes the request — so the leftmost entry
+// is attacker-controlled. The rightmost entry is the one closest to us.
 
 export function getIP(req: Request): string {
+  const cf = req.headers.get('cf-connecting-ip');
+  if (cf) return cf.trim();
+
   const xff = req.headers.get('x-forwarded-for');
- if (xff) return xff.split(',').pop()?.trim() ?? 'unknown';
+  if (xff) return xff.split(',').pop()?.trim() ?? 'unknown';
+
   const ri = req.headers.get('x-real-ip');
   if (ri) return ri.trim();
+
   return 'unknown';
 }
 
