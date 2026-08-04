@@ -1,56 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft, Check } from 'lucide-react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { ArrowLeft, Check, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import ReCAPTCHA from 'react-google-recaptcha';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 
 export default function ForgotPasswordPage() {
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
- async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-   e.preventDefault();
-   const formData = Object.fromEntries(new FormData(e.currentTarget));
-   setSubmitting(true);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
+    setSubmitting(true);
 
-   if (!executeRecaptcha) {
-     toast.error('Security check not ready. Please try again.');
-     setSubmitting(false);
-     return;
-   }
+    let recaptchaToken = '';
+    try {
+      if (recaptchaRef.current) {
+        recaptchaToken = (await recaptchaRef.current.executeAsync()) ?? '';
+        recaptchaRef.current.reset();
+      }
+    } catch {
+      toast.error('Security check failed. Please refresh and try again.');
+      setSubmitting(false);
+      return;
+    }
 
-   // Step 1: reCAPTCHA separately.
-   let recaptchaToken = '';
-   try {
-     recaptchaToken = await executeRecaptcha('forgot_password');
-   } catch {
-     toast.error('Security check failed. Please refresh and try again.');
-     setSubmitting(false);
-     return;
-   }
+    try {
+      await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, recaptchaToken }),
+      });
 
-   // Step 2: fetch separately.
-   try {
-     const payload = { ...formData, recaptchaToken };
-
-     await fetch('/api/auth/forgot-password', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify(payload),
-     });
-
-     setSent(true);
-   } catch {
-     toast.error('Could not reach the server. Check your connection.');
-   } finally {
-     setSubmitting(false);
-   }
- }
+      // Always show success regardless of whether the email exists.
+      // This prevents email enumeration attacks.
+      setSent(true);
+    } catch {
+      toast.error('Could not reach the server. Check your connection.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   if (sent) {
     return (
@@ -101,6 +96,15 @@ export default function ForgotPasswordPage() {
             placeholder='name@example.com'
             required
           />
+
+          {/* v2 Invisible — no visible UI unless a challenge is triggered */}
+          {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              size='invisible'
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            />
+          )}
 
           <button
             type='submit'

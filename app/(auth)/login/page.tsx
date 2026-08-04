@@ -1,63 +1,56 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { ArrowRight, Mail } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import ReCAPTCHA from 'react-google-recaptcha';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { toast } from 'sonner';
 import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { executeRecaptcha } = useGoogleReCaptcha();
-
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Capture form data synchronously before any await.
     const formData = Object.fromEntries(new FormData(e.currentTarget));
     setSubmitting(true);
     setFormError('');
 
-    if (!executeRecaptcha) {
-      setFormError('Security check not ready. Please try again.');
-      setSubmitting(false);
-      return;
-    }
-
-    // Step 1: reCAPTCHA gets its own try-catch.
-    // If Google's script throws (e.g. storage access denied),
-    // we show a specific message instead of "check your connection".
+    // Execute v2 Invisible captcha.
+    // executeAsync() resolves immediately when Google is confident,
+    // or shows a challenge popup first if needed.
     let recaptchaToken = '';
     try {
-      recaptchaToken = await executeRecaptcha('login');
+      if (recaptchaRef.current) {
+        recaptchaToken = (await recaptchaRef.current.executeAsync()) ?? '';
+        recaptchaRef.current.reset(); // must reset so next submit gets a fresh token
+      }
     } catch {
       setFormError('Security check failed. Please refresh and try again.');
       setSubmitting(false);
       return;
     }
 
-    // Step 2: API call gets its own try-catch.
-    // Now "could not reach the server" only shows for real network failures.
     try {
-      const payload = { ...formData, recaptchaToken };
-
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         toast.success('Welcome back!');
-        router.refresh(); // refresh the app shell (navbar, etc.) to reflect the new auth state 
+        router.refresh();
         router.replace(data.role === 'ADMIN' ? '/admin' : '/dashboard');
         return;
       }
@@ -128,6 +121,15 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
+
+          {/* v2 Invisible — renders no visible UI unless a challenge is needed */}
+          {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              size='invisible'
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            />
+          )}
 
           <button
             type='submit'

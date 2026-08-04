@@ -1,20 +1,20 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { ArrowRight, Mail, Phone, Ticket, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { toast } from 'sonner';
+import ReCAPTCHA from 'react-google-recaptcha';
 import AuthSplit from '@/components/auth/AuthSplit';
 import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import CountrySelect from '@/components/auth/CountrySelect';
-import { toast } from 'sonner';
 import Logo from '@/components/Logo';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const [country, setCountry] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -28,15 +28,12 @@ export default function RegisterPage() {
     setFormError('');
     setFieldErrors({});
 
-    if (!executeRecaptcha) {
-      setFormError('Security check not ready. Please try again.');
-      setSubmitting(false);
-      return;
-    }
-
     let recaptchaToken = '';
     try {
-      recaptchaToken = await executeRecaptcha('register');
+      if (recaptchaRef.current) {
+        recaptchaToken = (await recaptchaRef.current.executeAsync()) ?? '';
+        recaptchaRef.current.reset();
+      }
     } catch {
       setFormError('Security check failed. Please refresh and try again.');
       setSubmitting(false);
@@ -44,12 +41,10 @@ export default function RegisterPage() {
     }
 
     try {
-      const payload = { ...formData, recaptchaToken };
-
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -147,6 +142,15 @@ export default function RegisterPage() {
             placeholder='Optional referral id'
             error={fieldErrors.referral?.[0]}
           />
+
+          {/* v2 Invisible — no visible UI unless a challenge is triggered */}
+          {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              size='invisible'
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            />
+          )}
 
           <button
             type='submit'

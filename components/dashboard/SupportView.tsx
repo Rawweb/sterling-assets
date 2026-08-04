@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Send } from 'lucide-react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { toast } from 'sonner';
 
 type Props = {
@@ -16,7 +15,6 @@ const inputClass =
   'focus:bg-surface transition-colors duration-150';
 
 export default function SupportView({ name, email }: Props) {
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -29,14 +27,7 @@ export default function SupportView({ name, email }: Props) {
     setSubmitting(true);
 
     let token = '';
-    if (executeRecaptcha) {
-      try {
-        token = await executeRecaptcha('dashboard_support');
-      } catch {
-        // reCAPTCHA failure is non-fatal from within an authenticated session.
-      }
-    }
-
+    
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',

@@ -2,13 +2,19 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { createNotification, emailNotification } from '@/lib/notify';
 import { formatCents } from '@/lib/money';
+import { createHash, timingSafeEqual } from 'crypto';
 
 // pays daily profit to every active plan that hasn't been paid today,
 // and returns principal + completes plans that reach their term.
 export async function POST(req: Request) {
   // secret guard — only a caller with the secret may trigger payouts
-  const auth = req.headers.get('authorization');
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const auth = req.headers.get('authorization') ?? '';
+  const expected = `Bearer ${process.env.CRON_SECRET ?? ''}`;
+
+  const hashA = createHash('sha256').update(auth).digest();
+  const hashB = createHash('sha256').update(expected).digest();
+
+  if (!timingSafeEqual(hashA, hashB)) {
     return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
   }
 

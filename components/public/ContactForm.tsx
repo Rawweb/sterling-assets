@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Send } from 'lucide-react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { toast } from 'sonner';
 
 type Fields = {
@@ -27,7 +26,6 @@ const inputClass =
   'transition-colors duration-150';
 
 export default function ContactForm() {
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const [form, setForm] = useState<Fields>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -43,20 +41,7 @@ export default function ContactForm() {
     const payload = { ...form };
     setSubmitting(true);
 
-    if (!executeRecaptcha) {
-      toast.error('Security check not ready. Please try again.');
-      setSubmitting(false);
-      return;
-    }
-
     let token = '';
-    try {
-      token = await executeRecaptcha('contact');
-    } catch {
-      toast.error('Security check failed. Please refresh and try again.');
-      setSubmitting(false);
-      return;
-    }
 
     try {
       const res = await fetch('/api/contact', {
