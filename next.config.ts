@@ -52,7 +52,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://www.google.com https://www.gstatic.com https://translate.googleapis.com",
-      `connect-src 'self' https://www.google.com https://translate.googleapis.com https://translate.google.com https://api.cloudinary.com https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      `connect-src 'self' https://www.google.com https://translate.googleapis.com https://translate.google.com https://api.cloudinary.com https://${process.env.R2_BUCKET_NAME ?? 'sterling-assets'}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
       "frame-src 'self' https://www.google.com https://maps.google.com https://recaptcha.google.com",
       "worker-src 'self' blob:",
     ].join('; '),

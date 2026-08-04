@@ -32,6 +32,8 @@ export async function POST(req: Request) {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${user.id} FOR UPDATE`;
+
       // fetch the plan, must exist and be active
       const plan = await tx.plan.findUnique({ where: { id: planId } });
       if (!plan || !plan.active) {

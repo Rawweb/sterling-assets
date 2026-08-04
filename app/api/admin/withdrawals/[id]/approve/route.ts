@@ -22,23 +22,18 @@ export async function POST(
       if (!withdrawal) {
         return { error: 'Withdrawal not found.', status: 404 as const };
       }
-      if (withdrawal.status !== 'PENDING') {
-        return {
-          error: 'This withdrawal is not pending.',
-          status: 409 as const,
-        };
-      }
 
-      // money already left the balance at request time.
-      // approval only confirms the status. NO ledger write.
-      await tx.withdrawal.update({
-        where: { id },
+      const updated = await tx.withdrawal.updateMany({
+        where: { id, status: 'PENDING' },
         data: {
           status: 'APPROVED',
           reviewedBy: admin.id,
           reviewedAt: new Date(),
         },
       });
+      if (updated.count === 0) {
+        return { error: 'This withdrawal is not pending.', status: 409 as const };
+      }
 
       await tx.auditLog.create({
         data: {

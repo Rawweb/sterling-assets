@@ -60,6 +60,7 @@ export async function POST(req: Request) {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${user.id} FOR UPDATE`;
       // current balance, computed inside the transaction
       const agg = await tx.ledger.aggregate({
         where: { userId: user.id },

@@ -22,15 +22,16 @@ export async function POST(
       if (!userPlan) {
         return { error: 'Plan not found.', status: 404 as const };
       }
-      if (userPlan.status !== 'ACTIVE') {
+      const updated = await tx.userPlan.updateMany({
+        where: { id, status: 'ACTIVE' },
+        data: {
+          status: 'CANCELLED',
+          completedAt: new Date(),
+        },
+      });
+      if (updated.count === 0) {
         return { error: 'This plan is not active.', status: 409 as const };
       }
-
-      // Mark the plan as cancelled.
-      await tx.userPlan.update({
-        where: { id },
-        data: { status: 'CANCELLED', completedAt: new Date() },
-      });
 
       // Return the principal to the user's spendable balance.
       // Accrued profit is discarded — it was never in the ledger so

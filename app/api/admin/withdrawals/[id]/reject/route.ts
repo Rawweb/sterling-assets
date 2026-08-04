@@ -22,22 +22,17 @@ export async function POST(
       if (!withdrawal) {
         return { error: 'Withdrawal not found.', status: 404 as const };
       }
-      if (withdrawal.status !== 'PENDING') {
-        return {
-          error: 'This withdrawal is not pending.',
-          status: 409 as const,
-        };
-      }
-
-      // flip status FIRST — this is the lock that stops double-refund
-      await tx.withdrawal.update({
-        where: { id },
+      const updated = await tx.withdrawal.updateMany({
+        where: { id, status: 'PENDING' },
         data: {
           status: 'REJECTED',
           reviewedBy: admin.id,
           reviewedAt: new Date(),
         },
       });
+      if (updated.count === 0) {
+        return { error: 'This withdrawal is not pending.', status: 409 as const };
+      }
 
       // REVERSAL: return the held money to the balance
       await tx.ledger.create({

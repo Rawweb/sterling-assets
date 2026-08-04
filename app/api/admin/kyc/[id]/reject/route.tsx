@@ -21,22 +21,17 @@ export async function POST(
       if (!submission) {
         return { error: 'Submission not found.', status: 404 as const };
       }
-      if (submission.status !== 'PENDING') {
-        return {
-          error: 'This submission is not pending.',
-          status: 409 as const,
-        };
-      }
-
-      await tx.kycSubmission.update({
-        where: { id },
+      const updated = await tx.kycSubmission.updateMany({
+        where: { id, status: 'PENDING' },
         data: {
           status: 'REJECTED',
           reviewedBy: admin.id,
           reviewedAt: new Date(),
         },
       });
-
+      if (updated.count === 0) {
+        return { error: 'This submission is not pending.', status: 409 as const };
+      }
       // user goes to REJECTED so they can resubmit
       await tx.user.update({
         where: { id: submission.userId },

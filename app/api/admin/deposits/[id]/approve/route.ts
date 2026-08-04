@@ -25,19 +25,19 @@ export async function POST(
       if (!deposit) {
         return { error: 'Deposit not found.', status: 404 as const };
       }
-      if (deposit.status !== 'PENDING') {
-        return { error: 'This deposit is not pending.', status: 409 as const };
-      }
-
-      // flip the deposit to approved
-      await tx.deposit.update({
-        where: { id },
+      
+      const updated = await tx.deposit.updateMany({
+        where: { id, status: 'PENDING' },
         data: {
           status: 'APPROVED',
           reviewedBy: admin.id,
           reviewedAt: new Date(),
         },
       });
+
+      if (updated.count === 0) {
+        return { error: 'This deposit is not pending.', status: 409 as const };
+      }
 
       // write the ledger credit — THIS is where the balance moves
       await tx.ledger.create({
