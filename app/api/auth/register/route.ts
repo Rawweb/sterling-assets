@@ -8,6 +8,7 @@ import { sendVerificationEmail } from '@/lib/mail';
 import { setPendingEmail } from '@/lib/session';
 import { generateReferralCode } from '@/lib/referral';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { checkLimit, getIP, tooManyRequests } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -28,6 +29,12 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
+
+  // Per-IP limit: 5 registrations per hour.
+  // Stricter than login — account farming has a lower legitimate-use ceiling.
+  const ip = getIP(req);
+  const ipCheck = checkLimit(`register:ip:${ip}`, 5, 60 * 60_000);
+  if (ipCheck.limited) return tooManyRequests(ipCheck.retryAfterMs);
 
   const result = registerSchema.safeParse(body);
   if (!result.success) {

@@ -4,11 +4,21 @@ import { prisma } from '@/lib/db';
 import { loginSchema } from '@/lib/validation';
 import { createSession, setPendingEmail } from '@/lib/session';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import {
+  checkLimit,
+  clearFailures,
+  getIP,
+  recordFailure,
+  tooManyRequests,
+} from '@/lib/rate-limit';
 
 const DUMMY_HASH = '$2b$12$abcdefghijklmnopqrstuuWDlDPmZuGtaEYIvHTQyyBpNZ8p9L6';
 const INVALID = 'Invalid email or password';
 
 export async function POST(req: NextRequest) {
+  // TEMP: verifying Render's x-forwarded-for append behavior — remove after testing.
+  console.log('XFF:', req.headers.get('x-forwarded-for'));
+
   let body: unknown;
   try {
     body = await req.json();
@@ -27,6 +37,13 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
+
+  // Per-IP limit: 20 attempts per 15 minutes.
+  // Catches high-volume single-source abuse and acts as a DoS backstop
+  // regardless of intent.
+  const ip = getIP(req);
+  const ipCheck = checkLimit(`login:ip:${ip}`, 20, 15 * 60_000);
+  if (ipCheck.limited) return tooManyRequests(ipCheck.retryAfterMs);
 
   const result = loginSchema.safeParse(body);
   if (!result.success) {
@@ -47,14 +64,26 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
+      // Run the dummy hash to prevent timing-based user enumeration.
       await bcrypt.compare(password, DUMMY_HASH);
+      // Still record a failure against the submitted email so a distributed
+      // attacker hitting one account repeatedly is throttled.
+      const delay = recordFailure(email);
+      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
       return Response.json({ error: INVALID }, { status: 401 });
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
+      // Per-email progressive throttle: slows brute force without lockout.
+      // Backoff grows with each failure; resets after 15 min of no attempts.
+      const delay = recordFailure(email);
+      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
       return Response.json({ error: INVALID }, { status: 401 });
     }
+
+    // Correct password — clear any accumulated failure count.
+    clearFailures(email);
 
     if (!user.emailVerified) {
       await setPendingEmail(email);
