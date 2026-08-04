@@ -41,7 +41,7 @@ const securityHeaders = [
   //   style-src   — Next.js inline styles
   //   font-src    — self + data URIs (next/font embeds fonts as data URIs)
   //   img-src     — self + Cloudinary avatars + Unsplash CDN + Google (translate icons)
-  //   connect-src — self + Google APIs (translate, recaptcha) + Cloudinary upload API + R2 direct upload (deposit proof / KYC docs)
+  //   connect-src — self + Google APIs (translate, recaptcha) + R2 direct upload (deposit proof / KYC docs)
   //   frame-src   — Google Maps embed (contact page) + reCAPTCHA v2 iframe
   //   worker-src  — Next.js service worker
   {
@@ -52,7 +52,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://www.google.com https://www.gstatic.com https://translate.googleapis.com",
-      `connect-src 'self' https://www.google.com https://translate.googleapis.com https://translate.google.com https://api.cloudinary.com https://${process.env.R2_BUCKET_NAME ?? 'sterling-assets'}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      `connect-src 'self' https://www.google.com https://translate.googleapis.com https://translate.google.com https://${process.env.R2_BUCKET_NAME ?? 'sterling-assets'}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
       "frame-src 'self' https://www.google.com https://maps.google.com https://recaptcha.google.com",
       "worker-src 'self' blob:",
     ].join('; '),

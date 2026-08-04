@@ -38,7 +38,7 @@ export default function ProfilePicture({
       return;
     }
     if (picked.size > 3 * 1024 * 1024) {
-      setError('That image is larger than 3MB.');
+      setError('That image is larger than 3 MB.');
       return;
     }
     setError(null);
@@ -51,44 +51,20 @@ export default function ProfilePicture({
     setError(null);
 
     try {
-      // Step 1: upload directly to Cloudinary from the browser.
-      // This uses an unsigned upload preset so the API secret never
-      // leaves the server.
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-      const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-      if (!cloudName || !preset) {
-        setError('Image upload is not configured.');
-        return;
-      }
-
+      // Send the file directly to our server — the server handles the
+      // Cloudinary upload using API credentials that never reach the browser.
       const fd = new FormData();
       fd.append('file', file);
-      fd.append('upload_preset', preset);
-      fd.append('folder', 'sterling-assets/avatars');
 
-      const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        { method: 'POST', body: fd },
-      );
-
-      if (!cloudRes.ok) {
-        setError('Image upload failed. Please try again.');
-        return;
-      }
-
-      const cloudData = await cloudRes.json();
-      const avatarUrl: string = cloudData.secure_url;
-
-      // Step 2: save the Cloudinary URL to our database.
-      const saveRes = await fetch('/api/profile/avatar', {
+      const res = await fetch('/api/profile/avatar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarUrl }),
+        body: fd,
+        // Do NOT set Content-Type — the browser sets it automatically
+        // with the correct multipart boundary.
       });
 
-      if (!saveRes.ok) {
-        const data = await saveRes.json().catch(() => ({}));
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
         setError(data.error ?? 'Could not save your picture.');
         return;
       }
@@ -166,7 +142,7 @@ export default function ProfilePicture({
             </>
           ) : (
             <p className='text-[13px] text-muted'>
-              PNG, JPG, or WebP. Up to 3MB.
+              PNG, JPG, or WebP. Up to 3 MB.
             </p>
           )}
           {error && <p className='mt-1.5 text-[13px] text-down'>{error}</p>}
