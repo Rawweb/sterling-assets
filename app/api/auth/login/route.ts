@@ -18,6 +18,8 @@ const INVALID = 'Invalid email or password';
 export async function POST(req: NextRequest) {
   // TEMP: verifying Render's x-forwarded-for append behavior — remove after testing.
   console.log('XFF:', req.headers.get('x-forwarded-for'));
+  // TEMP: verifying whether cf-connecting-ip can be forged by bypassing Cloudflare — remove after testing.
+  console.log('CF-IP:', req.headers.get('cf-connecting-ip'));
 
   let body: unknown;
   try {
