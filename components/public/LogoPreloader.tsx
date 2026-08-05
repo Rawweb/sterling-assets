@@ -61,7 +61,11 @@ const ANIMATION_CSS = `
 `;
 
 export default function LogoPreloader() {
-  const [show, setShow] = useState(false);
+  // Lazy-initialize from the module-level flag: on a genuine first load
+  // this evaluates to true on both the server render and the first client
+  // paint, so the overlay is present from the very first frame instead of
+  // flashing the real page first and only covering it once an effect runs.
+  const [show, setShow] = useState(() => !hasShown);
   const [fading, setFading] = useState(false);
 
   const dismiss = useCallback(() => {
@@ -76,8 +80,6 @@ export default function LogoPreloader() {
     // Already shown this page load — skip on client-side navigation.
     if (hasShown) return;
     hasShown = true;
-
-    setShow(true);
 
     const reduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',

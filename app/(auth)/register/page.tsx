@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { ArrowRight, Mail, Phone, Ticket, User } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import ReCAPTCHA from 'react-google-recaptcha';
 import AuthSplit from '@/components/auth/AuthSplit';
@@ -11,6 +11,26 @@ import Field from '@/components/auth/Field';
 import PasswordField from '@/components/auth/PasswordField';
 import CountrySelect from '@/components/auth/CountrySelect';
 import Logo from '@/components/Logo';
+
+// Reads the ?ref= query param to prefill the referral field. Isolated in
+// its own component with its own Suspense boundary (Next.js's recommended
+// pattern for useSearchParams) so the rest of the form still prerenders
+// statically instead of the whole page bailing out to client-only rendering.
+function ReferralField({ error }: { error?: string }) {
+  const searchParams = useSearchParams();
+  const ref = searchParams.get('ref') ?? '';
+
+  return (
+    <Field
+      id='referral'
+      label='Referral ID'
+      icon={Ticket}
+      placeholder='Optional referral id'
+      defaultValue={ref}
+      error={error}
+    />
+  );
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -135,13 +155,19 @@ export default function RegisterPage() {
             error={fieldErrors.country?.[0]}
           />
 
-          <Field
-            id='referral'
-            label='Referral ID'
-            icon={Ticket}
-            placeholder='Optional referral id'
-            error={fieldErrors.referral?.[0]}
-          />
+          <Suspense
+            fallback={
+              <Field
+                id='referral'
+                label='Referral ID'
+                icon={Ticket}
+                placeholder='Optional referral id'
+                error={fieldErrors.referral?.[0]}
+              />
+            }
+          >
+            <ReferralField error={fieldErrors.referral?.[0]} />
+          </Suspense>
 
           {/* v2 Invisible — no visible UI unless a challenge is triggered */}
           {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (

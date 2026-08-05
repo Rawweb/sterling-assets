@@ -95,7 +95,12 @@ export default function HomeHero() {
           <h1 className='text-on-navy text-[28px] sm:text-[34px] lg:text-[44px] font-bold leading-[1.15] mb-4'>
             Invest smarter.
             <br />
-            <span className='text-gold'>
+            {/* translate="no" — this text rewrites itself dozens of times per
+                second (typewriter effect). Google Translate watches the DOM
+                for text changes and rewrites nodes it translates; the two
+                fighting over the same node is what corrupts the text and
+                gets Translate stuck re-triggering indefinitely. */}
+            <span className='text-gold notranslate' translate='no'>
               {displayed}
               {/* Blinking cursor — always visible so the line never collapses. */}
               <span

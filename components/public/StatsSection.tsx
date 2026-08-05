@@ -70,8 +70,16 @@ function StatCounter({
   // 5200 → "5,200", 12 → "12"
   const formatted = count >= 1000 ? count.toLocaleString() : String(count);
 
+  // translate="no" — this text rewrites itself on every animation frame
+  // during the count-up. Same conflict as the hero typewriter: Google
+  // Translate watches for DOM text changes and fights with React over the
+  // same node, which is what stalls the counters. Numbers don't need
+  // translation anyway, so nothing is lost by excluding this span.
   return (
-    <span className='font-display text-3xl sm:text-4xl font-bold text-gold'>
+    <span
+      className='font-display text-3xl sm:text-4xl font-bold text-gold notranslate'
+      translate='no'
+    >
       {prefix}
       {formatted}
       {suffix}

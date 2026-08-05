@@ -10,6 +10,7 @@ type FieldProps = {
   placeholder?: string;
   required?: boolean;
   error?: string;
+  defaultValue?: string;
   children?: ReactNode;
 };
 
@@ -22,6 +23,7 @@ export default function Field({
   placeholder,
   required = false,
   error,
+  defaultValue,
   children,
 }: FieldProps) {
   return (
@@ -48,6 +50,7 @@ export default function Field({
             type={type}
             placeholder={placeholder}
             required={required}
+            defaultValue={defaultValue}
             aria-invalid={!!error}
             className='min-w-0 flex-1 bg-transparent py-3 text-sm outline-none'
           />
