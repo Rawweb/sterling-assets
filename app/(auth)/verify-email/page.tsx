@@ -1,8 +1,10 @@
 // app/(auth)/verify-email/page.tsx
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 import Logo from '@/components/Logo';
 import ResendButton from '@/components/auth/ResendButton';
+import { getViewer } from '@/lib/viewer';
 import { getPendingEmail } from '@/lib/session';
 import { getResendCooldown } from '@/lib/token';
 
@@ -26,6 +28,13 @@ const BANNERS = {
 } as const;
 
 export default async function VerifyEmailPage({ searchParams }: PageProps) {
+  // Guard: a verified user who navigates back here (e.g. via browser Back)
+  // should not see the verify page again. Redirect them to the dashboard.
+  const viewer = await getViewer();
+  if (viewer?.emailVerified) {
+    redirect('/dashboard');
+  }
+
   const { status } = await searchParams;
 
   const email = await getPendingEmail();
@@ -103,4 +112,3 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
     </main>
   );
 }
- 

@@ -1,6 +1,8 @@
 import {
+  Activity,
   BarChart2,
   Bitcoin,
+  Building2,
   Coins,
   Globe,
   Home as HomeIcon,
@@ -11,28 +13,31 @@ import {
 } from 'lucide-react';
 
 /**
- * Server component — pure CSS marquee, no JS needed.
- * Nine items doubled = 18 in the track so the loop is always seamless
- * and there are no visible gaps at any viewport width.
- * animate-marquee and marquee-mask are defined in globals.css.
+ * Server component. Pure CSS marquee — no JS.
+ * Each item carries its brand color applied via inline style (brand colors
+ * cannot be design-system tokens because they are per-partner identity).
+ * 11 items doubled = 22 in the track, keeping the loop seamless.
+ * OKX brand is primarily black/white — #1C1C1C is accurate to their identity.
  */
 
 const ITEMS = [
-  { icon: Bitcoin, name: 'Binance' },
-  { icon: Landmark, name: 'Banking' },
-  { icon: Coins, name: 'Blockchain' },
-  { icon: HomeIcon, name: 'Real Estate' },
-  { icon: BarChart2, name: 'Bitget' },
-  { icon: Sprout, name: 'Agriculture' },
-  { icon: Wallet, name: 'LocalCoinSwap' },
-  { icon: Globe, name: 'Kraken' },
-  { icon: TrendingUp, name: 'Cryptocurrency' },
+  { icon: Bitcoin, name: 'Binance', color: '#F3BA2F' },
+  { icon: Landmark, name: 'Banking', color: '#1A56DB' },
+  { icon: Coins, name: 'Blockchain', color: '#2CA6E0' },
+  { icon: HomeIcon, name: 'Real Estate', color: '#E07B39' },
+  { icon: BarChart2, name: 'Bitget', color: '#00C0A3' },
+  { icon: Sprout, name: 'Agriculture', color: '#4CAF50' },
+  { icon: Wallet, name: 'LocalCoinSwap', color: '#1A6AFF' },
+  { icon: Globe, name: 'Kraken', color: '#5741D9' },
+  { icon: TrendingUp, name: 'Cryptocurrency', color: '#F7931A' },
+  { icon: Activity, name: 'Bybit', color: '#F7A600' },
+  { icon: Building2, name: 'OKX', color: '#1C1C1C' },
 ];
 
 export default function TrustedBySection() {
   return (
     <section className='bg-surface py-12 overflow-hidden'>
-      <p className='text-center text-muted text-xs font-medium tracking-widest uppercase mb-8'>
+      <p className='text-center text-muted text-sm font-medium tracking-widest uppercase mb-8'>
         Trusted by investors using
       </p>
 
@@ -42,8 +47,15 @@ export default function TrustedBySection() {
             const Icon = item.icon;
             return (
               <div key={i} className='flex items-center gap-2.5 select-none'>
-                <Icon size={18} className='text-muted/60 flex-shrink-0' />
-                <span className='text-sm font-bold tracking-[0.5px] text-text/40 whitespace-nowrap'>
+                <Icon
+                  size={18}
+                  style={{ color: item.color }}
+                  className='flex-shrink-0'
+                />
+                <span
+                  className='text-sm font-bold tracking-[0.5px] whitespace-nowrap'
+                  style={{ color: item.color }}
+                >
                   {item.name}
                 </span>
               </div>

@@ -2,10 +2,12 @@ import CtaSection from '@/components/public/CtaSection';
 import HomeHero from '@/components/public/HomeHero';
 import HowItWorks from '@/components/public/HowItWorksSection';
 import IndustrySectorsSection from '@/components/public/IndustrySectorsSection';
+import OurWorkProcessSection from '@/components/public/OurWorkProgressSection';
 import StatsSection from '@/components/public/StatsSection';
 import TestimonialsSection from '@/components/public/TestimonialSection';
 import TrustedBySection from '@/components/public/TrustedBySection';
 import WhatSetsUsApartSection from '@/components/public/WhatSetsUsApartSection';
+import WhyChooseUsSection from '@/components/public/WhyChooseUsSection';
 
 export default function HomePage() {
   return (
@@ -28,10 +30,16 @@ export default function HomePage() {
       {/* 6. Trusted By marquee */}
       <TrustedBySection />
 
-      {/* 7. Testimonials */}
+      {/* 7. Why Choose Us */}
+      <WhyChooseUsSection />
+
+      {/* 8. Our Work Progress */}
+      <OurWorkProcessSection />
+
+      {/* 9. Testimonials */}
       <TestimonialsSection />
 
-      {/* 8. CTA strip (dark navy) */}
+      {/* 10. CTA strip (dark navy) */}
       <CtaSection />
     </>
   );

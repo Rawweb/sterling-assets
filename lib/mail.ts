@@ -19,7 +19,10 @@ export async function sendVerificationEmail(
     process.env.APP_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
     'http://localhost:3000';
-  const link = `${base}/api/auth/verify?token=${token}`;
+
+  // /verify-email/confirm looks like a real page to Safe Browsing.
+  // The old /api/auth/verify pattern triggered phishing false-positives.
+  const link = `${base}/verify-email/confirm?token=${token}`;
 
   if (process.env.NODE_ENV !== 'production') {
     console.log(`\n🔗 Verification link for ${to}:\n${link}\n`);

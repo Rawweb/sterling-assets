@@ -30,6 +30,8 @@
 
   /* marquee */
   --animate-marquee: marquee 32s linear infinite;
+  --animate-spin-slow: spin-slow 12s linear infinite;
+  --animate-float: float 4s ease-in-out infinite;
 }
 
 @theme inline {
@@ -50,6 +52,16 @@
 .marquee-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   mask-image:         linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
 }
 
 body {

@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 
 const IMAGES = [
-  '/images/hero-bg-7.jpg',
+  '/images/hero-bg-1.jpg',
   '/images/hero-bg-4.jpg',
-  '/images/hero-bg-10.jpg',
+  '/images/hero-bg-7.jpg',
 ];
 
 // Three angles of the value proposition, cycling on the second heading line.
@@ -18,7 +18,7 @@ const PHRASES = [
 ];
 
 // Lighter gradient so the image reads through more clearly.
-const OVERLAY = 'linear-gradient(rgba(15,27,45,.50), rgba(15,27,45,.65))';
+const OVERLAY = 'linear-gradient(rgba(15,27,45,.65), rgba(15,27,45,.70))';
 
 export default function HomeHero() {
   // ---- image cycling ----

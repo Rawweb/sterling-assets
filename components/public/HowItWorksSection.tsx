@@ -31,8 +31,16 @@ export default function HowItWorksSection() {
       <Container>
         {/* ---- section head ---- */}
         <div className='text-center max-w-[480px] mx-auto mb-12 space-y-3'>
-          <div className='bg-primary/10 text-primary text-xs font-semibold tracking-[0.15em] uppercase px-3 py-1.5 border-l-3 w-fit mx-auto'>
-            How it works
+          <div className='inline-flex items-center gap-2.5 mb-5'>
+            {/* Bar chart indicator — matches the || icon in the reference */}
+            <span className='flex items-end gap-[3px]' aria-hidden='true'>
+              <span className='w-[3px] h-3 bg-primary rounded-full' />
+              <span className='w-[3px] h-5 bg-primary rounded-full' />
+              <span className='w-[3px] h-4 bg-primary rounded-full' />
+            </span>
+            <p className='text-sm font-bold tracking-[0.2em] uppercase text-primary'>
+              how it works
+            </p>
           </div>
           <p className='text-xl md:text-2xl text-navy font-bold'>
             Three steps to start earning
