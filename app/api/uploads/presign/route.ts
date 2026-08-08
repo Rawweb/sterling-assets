@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/session';
 import { createPresignedUploadUrl } from '@/lib/r2';
 import { randomBytes } from 'crypto';
+import { checkLimit, tooManyRequests } from '@/lib/rate-limit';
 
 // Only these MIME types are accepted for any upload.
 const ALLOWED_TYPES = [
@@ -10,6 +11,8 @@ const ALLOWED_TYPES = [
   'image/webp',
   'application/pdf',
 ];
+
+const MAX_BYTES = 10 * 1024 * 1024; // 10 MB — generous for a phone photo or scanned PDF
 
 type UploadType = 'deposit-proof' | 'kyc-front' | 'kyc-back';
 
@@ -45,6 +48,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
 
+  // Per-user limit: 20 presign requests per hour.
+  const limit = checkLimit(`presign:user:${user.id}`, 20, 60 * 60_000);
+  if (limit.limited) return tooManyRequests(limit.retryAfterMs);
+
   let body: unknown;
   try {
     body = await req.json();
@@ -55,7 +62,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const { contentType, uploadType } = body as Record<string, unknown>;
+  const { contentType, uploadType, contentLength } = body as Record<
+    string,
+    unknown
+  >;
 
   if (typeof contentType !== 'string' || !ALLOWED_TYPES.includes(contentType)) {
     return NextResponse.json({ error: 'Invalid file type.' }, { status: 400 });
@@ -71,11 +81,28 @@ export async function POST(req: Request) {
     );
   }
 
+  if (
+    typeof contentLength !== 'number' ||
+    !Number.isInteger(contentLength) ||
+    contentLength <= 0 ||
+    contentLength > MAX_BYTES
+  ) {
+    return NextResponse.json(
+      { error: 'File size must be between 1 byte and 10 MB.' },
+      { status: 400 },
+    );
+  }
+
   const ext = getExtension(contentType);
   const key = buildKey(user.id, uploadType as UploadType, ext);
 
   try {
-    const uploadUrl = await createPresignedUploadUrl({ key, contentType });
+    const uploadUrl = await createPresignedUploadUrl({
+      key,
+      contentType,
+      contentLength,
+    });
+
     return NextResponse.json({ uploadUrl, key });
   } catch {
     return NextResponse.json(

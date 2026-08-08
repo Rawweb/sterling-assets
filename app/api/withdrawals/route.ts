@@ -3,6 +3,8 @@ import { getCurrentUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { createNotification, emailNotification } from '@/lib/notify';
 import { formatCents } from '@/lib/money';
+import { checkLimit, tooManyRequests } from '@/lib/rate-limit';
+
 
 const MIN_WITHDRAWAL_CENTS = 5000;
 
@@ -11,6 +13,10 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
+
+  // Per-user limit: 5 withdrawal requests per hour.
+  const limit = checkLimit(`withdraw:user:${user.id}`, 5, 60 * 60_000);
+  if (limit.limited) return tooManyRequests(limit.retryAfterMs);
 
   // KYC gate — server-enforced, §6
   if (user.kycStatus !== 'APPROVED') {

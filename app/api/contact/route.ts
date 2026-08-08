@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { checkLimit, getIP, tooManyRequests } from '@/lib/rate-limit';
+
 
 function esc(str: string): string {
   return str
@@ -22,6 +24,14 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Per-IP limit: 5 submissions per hour.
+  // The email this route sends goes through the same Resend account that
+  // sends verification and password-reset mail — scripted abuse here risks
+  // burning the send quota or tripping spam-complaint throttling on that
+  // account, which would take down real auth flows too, not just flood support.
+  const ip = getIP(req);
+  const ipCheck = checkLimit(`contact:ip:${ip}`, 5, 60 * 60_000);
+  if (ipCheck.limited) return tooManyRequests(ipCheck.retryAfterMs);
   const body = await req.json().catch(() => null);
 
   const parsed = schema.safeParse(body);

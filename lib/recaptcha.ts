@@ -16,9 +16,9 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
     return true;
   }
 
-  // Empty token means the caller is skipping captcha intentionally
-  // (e.g. authenticated dashboard contact form). Allow it through.
-  if (!token) return true;
+  // An empty token is never valid. Fail closed instead of making a
+  // network call to Google for a request that can't possibly pass.
+  if (!token) return false;
 
   try {
     const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { cloudinary } from '@/lib/cloudinary';
+import { checkLimit, tooManyRequests } from '@/lib/rate-limit';
+
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_BYTES = 3 * 1024 * 1024; // 3 MB — matches client-side check
@@ -11,6 +13,10 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
+
+  // Per-user limit: 10 avatar uploads per hour — each call is a real Cloudinary upload.
+  const limit = checkLimit(`avatar:user:${user.id}`, 10, 60 * 60_000);
+  if (limit.limited) return tooManyRequests(limit.retryAfterMs);
 
   let formData: FormData;
   try {

@@ -12,9 +12,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing token.' }, { status: 400 });
     }
 
-    if (!password || typeof password !== 'string' || password.length < 8) {
+    if (
+      !password ||
+      typeof password !== 'string' ||
+      password.length < 8 ||
+      password.length > 72
+    ) {
       return NextResponse.json(
-        { error: 'Password must be at least 8 characters.' },
+        { error: 'Password must be between 8 and 72 characters.' },
         { status: 400 },
       );
     }

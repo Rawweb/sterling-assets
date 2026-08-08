@@ -30,10 +30,12 @@ const BUCKET = process.env.R2_BUCKET_NAME ?? 'sterling-assets';
 export async function createPresignedUploadUrl({
   key,
   contentType,
+  contentLength,
   expiresIn = 300, // 5 minutes
 }: {
   key: string;
   contentType: string;
+  contentLength: number;
   expiresIn?: number;
 }): Promise<string> {
   const client = getR2Client();
@@ -42,10 +44,12 @@ export async function createPresignedUploadUrl({
     Bucket: BUCKET,
     Key: key,
     ContentType: contentType,
+    ContentLength: contentLength,
   });
 
   return getSignedUrl(client, command, { expiresIn });
 }
+
 
 // Generate a presigned URL that allows viewing a private file for a
 // limited time. The bucket stays completely private — no public access.

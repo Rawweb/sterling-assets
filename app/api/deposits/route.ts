@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { checkLimit, tooManyRequests } from '@/lib/rate-limit';
+
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
   }
+
+  // Per-user limit: 10 deposit submissions per hour.
+  const limit = checkLimit(`deposit:user:${user.id}`, 10, 60 * 60_000);
+  if (limit.limited) return tooManyRequests(limit.retryAfterMs);
 
   let body: unknown;
   try {

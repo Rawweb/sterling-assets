@@ -53,6 +53,25 @@ export async function POST(req: Request) {
         const isFinalDay = newDaysPaid >= plan.durationDays;
 
         if (isFinalDay) {
+          // Conditional update: only proceeds if this row is still at the
+          // daysPaid value we read outside the transaction. If a concurrent
+          // run already advanced it, count is 0 and we bail out before
+          // writing anything to the ledger.
+          const updated = await tx.userPlan.updateMany({
+            where: { id: plan.id, daysPaid: plan.daysPaid },
+            data: {
+              daysPaid: newDaysPaid,
+              accruedProfitCents: newAccrued,
+              lastPaidAt: now,
+              status: 'COMPLETED',
+              completedAt: now,
+            },
+          });
+
+          if (updated.count === 0) {
+            return null;
+          }
+
           // release everything: full accrued profit + principal, both to the ledger now
           await tx.ledger.create({
             data: {
@@ -69,17 +88,6 @@ export async function POST(req: Request) {
               amount: plan.investedCents, // principal back
               type: 'PRINCIPAL_RETURN',
               referenceId: plan.id,
-            },
-          });
-
-          await tx.userPlan.update({
-            where: { id: plan.id },
-            data: {
-              daysPaid: newDaysPaid,
-              accruedProfitCents: newAccrued,
-              lastPaidAt: now,
-              status: 'COMPLETED',
-              completedAt: now,
             },
           });
 
@@ -108,8 +116,8 @@ export async function POST(req: Request) {
           return null;
         } else {
           // still running: accrue profit on the plan only, NOTHING to the ledger
-          await tx.userPlan.update({
-            where: { id: plan.id },
+          const updated = await tx.userPlan.updateMany({
+            where: { id: plan.id, daysPaid: plan.daysPaid },
             data: {
               daysPaid: newDaysPaid,
               accruedProfitCents: newAccrued,
@@ -117,12 +125,16 @@ export async function POST(req: Request) {
             },
           });
 
+          if (updated.count === 0) {
+            return null;
+          }
+
+          paid++;
+
           const prefProfit = await tx.user.findUnique({
             where: { id: plan.userId },
             select: { notifyProfit: true },
           });
-
-          paid++;
 
           if (prefProfit?.notifyProfit) {
             const title = 'Profit earned';
